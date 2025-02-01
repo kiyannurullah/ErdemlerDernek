@@ -63,7 +63,10 @@ const adminKontrol = (req, res, next) => {
 
 // Routes
 const authRoutes = require('./routes/auth');
+const aniRoutes = require('./routes/ani');
+
 app.use('/', authRoutes);
+app.use('/anilar', aniRoutes);
 
 // Ana sayfa route'u
 app.get('/', (req, res) => {

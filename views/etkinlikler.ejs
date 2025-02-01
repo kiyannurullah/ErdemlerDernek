@@ -1,0 +1,67 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Etkinliklerimiz</h2>
+            
+            <% if (messages.success && messages.success.length > 0) { %>
+                <div class="alert alert-success">
+                    <%= messages.success %>
+                </div>
+            <% } %>
+            <% if (messages.error && messages.error.length > 0) { %>
+                <div class="alert alert-danger">
+                    <%= messages.error %>
+                </div>
+            <% } %>
+
+            <% if (etkinlikler && etkinlikler.length > 0) { %>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <% etkinlikler.forEach(function(etkinlik) { %>
+                        <div class="col">
+                            <div class="card h-100 shadow-sm">
+                                <% if (etkinlik.gorsel) { %>
+                                    <img src="<%= etkinlik.gorsel %>" class="card-img-top" alt="<%= etkinlik.baslik %>" style="height: 200px; object-fit: cover;">
+                                <% } else { %>
+                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <i class="fas fa-calendar-alt fa-4x text-muted"></i>
+                                    </div>
+                                <% } %>
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= etkinlik.baslik %></h5>
+                                    <p class="card-text text-muted" style="height: 4.5em; overflow: hidden;">
+                                        <%= etkinlik.aciklama %>
+                                    </p>
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="far fa-calendar"></i> 
+                                            <%= new Date(etkinlik.tarih).toLocaleDateString('tr-TR') %>
+                                            <i class="far fa-clock ms-2"></i> 
+                                            <%= etkinlik.saat %>
+                                        </small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt"></i> 
+                                            <%= etkinlik.yer %>
+                                        </small>
+                                    </div>
+                                    <a href="/etkinlikler/<%= etkinlik._id %>" class="btn btn-primary w-100">
+                                        Detayları Görüntüle
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-calendar-times fa-4x text-muted"></i>
+                    </div>
+                    <h4>Henüz etkinlik bulunmuyor</h4>
+                    <p class="text-muted">Yakında yeni etkinlikler eklenecektir.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div> 

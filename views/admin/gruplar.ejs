@@ -1,0 +1,74 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title">Grup Yönetimi</h2>
+                        <div>
+                            <a href="/admin/grup-ekle" class="btn btn-success me-2">
+                                <i class="fas fa-plus"></i> Yeni Grup Oluştur
+                            </a>
+                            <a href="/admin/panel" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Admin Paneline Dön
+                            </a>
+                        </div>
+                    </div>
+
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success">
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Grup Adı</th>
+                                    <th>Açıklama</th>
+                                    <th>Üye Sayısı</th>
+                                    <th>Oluşturma Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (gruplar && gruplar.length > 0) { %>
+                                    <% gruplar.forEach(function(grup) { %>
+                                        <tr>
+                                            <td><%= grup.isim %></td>
+                                            <td><%= grup.aciklama %></td>
+                                            <td><%= grup.uyeler.length %></td>
+                                            <td><%= new Date(grup.olusturmaTarihi).toLocaleDateString('tr-TR') %></td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="/admin/grup-duzenle/<%= grup._id %>" class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="/admin/grup-sil/<%= grup._id %>" method="POST" class="d-inline ms-1" onsubmit="return confirm('Bu grubu silmek istediğinizden emin misiniz?');">
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center">Henüz hiç grup oluşturulmamış.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

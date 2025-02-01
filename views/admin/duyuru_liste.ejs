@@ -1,0 +1,131 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title">Duyuru Yönetimi</h2>
+                        <div>
+                            <a href="/admin" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left"></i> Admin Paneli
+                            </a>
+                            <a href="/duyurular/admin/ekle" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Yeni Duyuru
+                            </a>
+                        </div>
+                    </div>
+
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success">
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <% if (duyurular && duyurular.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Başlık</th>
+                                        <th>Önem</th>
+                                        <th>Durum</th>
+                                        <th>Oluşturan</th>
+                                        <th>Tarih</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% duyurular.forEach(function(duyuru) { %>
+                                        <tr>
+                                            <td>
+                                                <% if (duyuru.gorsel) { %>
+                                                    <img src="<%= duyuru.gorsel %>" alt="Duyuru görseli" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                <% } %>
+                                                <%= duyuru.baslik %>
+                                            </td>
+                                            <td>
+                                                <% if (duyuru.onemDurumu === 'acil') { %>
+                                                    <span class="badge bg-danger">Acil</span>
+                                                <% } else if (duyuru.onemDurumu === 'onemli') { %>
+                                                    <span class="badge bg-warning text-dark">Önemli</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-info">Normal</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <% if (duyuru.durum === 'aktif') { %>
+                                                    <span class="badge bg-success">Aktif</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary">Pasif</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <% if (duyuru.olusturanId) { %>
+                                                    <%= duyuru.olusturanId.isim %> <%= duyuru.olusturanId.soyisim %>
+                                                <% } else { %>
+                                                    <span class="text-muted">Bilinmiyor</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <%= new Date(duyuru.olusturmaTarihi).toLocaleDateString('tr-TR') %>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="/duyurular/<%= duyuru._id %>" class="btn btn-info btn-sm" title="Görüntüle">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="/duyurular/admin/duzenle/<%= duyuru._id %>" class="btn btn-warning btn-sm" title="Düzenle">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-danger btn-sm" title="Sil"
+                                                            data-bs-toggle="modal" data-bs-target="#silModal<%= duyuru._id %>">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Silme Onay Modalı -->
+                                                <div class="modal fade" id="silModal<%= duyuru._id %>" tabindex="-1" aria-labelledby="silModalLabel<%= duyuru._id %>" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="silModalLabel<%= duyuru._id %>">Duyuru Sil</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p><strong><%= duyuru.baslik %></strong> başlıklı duyuruyu silmek istediğinizden emin misiniz?</p>
+                                                                <p class="text-danger"><small>Bu işlem geri alınamaz!</small></p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                                                                <form action="/duyurular/admin/sil/<%= duyuru._id %>" method="POST" class="d-inline">
+                                                                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-bullhorn fa-4x text-muted"></i>
+                            </div>
+                            <h4>Henüz duyuru bulunmuyor</h4>
+                            <p class="text-muted">Yeni duyuru eklemek için "Yeni Duyuru" butonunu kullanabilirsiniz.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

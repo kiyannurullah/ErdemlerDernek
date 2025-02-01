@@ -46,53 +46,85 @@ router.get('/admin/panel', adminKontrol, (req, res) => {
     });
 });
 
-// Üye Kayıt Sayfası
+// Kayıt Sayfası
 router.get('/kayit', (req, res) => {
     if (req.session.user) {
         return res.redirect('/');
     }
     res.render('auth/kayit', {
-        title: 'Kayıt Ol',
+        title: 'Üye Ol',
         user: req.session.user
     });
 });
 
-// Üye Kayıt İşlemi
+// Kayıt İşlemi
 router.post('/kayit', async (req, res) => {
     try {
-        const { isim, soyisim, email, sifre, sifreTekrar } = req.body;
+        const { isim, soyisim, tcNo, email, aileLakabi, sifre, sifreTekrar } = req.body;
+
+        // Tüm alanların dolu olduğunu kontrol et
+        if (!isim || !soyisim || !tcNo || !email || !aileLakabi || !sifre || !sifreTekrar) {
+            req.flash('error', 'Lütfen tüm alanları doldurun');
+            return res.redirect('/kayit');
+        }
+
+        // TC No formatını kontrol et
+        if (!/^[0-9]{11}$/.test(tcNo)) {
+            req.flash('error', 'TC Kimlik No 11 haneli olmalıdır');
+            return res.redirect('/kayit');
+        }
 
         // Şifre kontrolü
         if (sifre !== sifreTekrar) {
             req.flash('error', 'Şifreler eşleşmiyor');
-            return res.redirect('/auth/kayit');
+            return res.redirect('/kayit');
+        }
+
+        // Şifre uzunluğu kontrolü
+        if (sifre.length < 6) {
+            req.flash('error', 'Şifre en az 6 karakter olmalıdır');
+            return res.redirect('/kayit');
+        }
+
+        // E-posta formatını kontrol et
+        if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+            req.flash('error', 'Geçerli bir e-posta adresi giriniz');
+            return res.redirect('/kayit');
         }
 
         // E-posta kontrolü
-        const uyeVarMi = await User.findOne({ email });
-        if (uyeVarMi) {
+        const mailKontrol = await User.findOne({ email });
+        if (mailKontrol) {
             req.flash('error', 'Bu e-posta adresi zaten kullanımda');
-            return res.redirect('/auth/kayit');
+            return res.redirect('/kayit');
         }
 
-        // Şifreyi hashle
-        const hashedSifre = await bcrypt.hash(sifre, 10);
+        // TC No kontrolü
+        const tcKontrol = await User.findOne({ tcNo });
+        if (tcKontrol) {
+            req.flash('error', 'Bu TC Kimlik No zaten kayıtlı');
+            return res.redirect('/kayit');
+        }
 
         // Yeni üye oluştur
         const yeniUye = new User({
             isim,
             soyisim,
+            tcNo,
             email,
-            sifre: hashedSifre,
+            aileLakabi,
+            sifre, // Model içinde otomatik hashlenecek
             rol: 'beklemede'
         });
 
         await yeniUye.save();
-        req.flash('success', 'Kaydınız başarıyla oluşturuldu. Hesabınız onaylandıktan sonra giriş yapabilirsiniz.');
+        
+        req.flash('success', 'Kaydınız başarıyla oluşturuldu. Yönetici onayından sonra giriş yapabilirsiniz.');
         res.redirect('/giris');
     } catch (error) {
-        req.flash('error', 'Kayıt olurken bir hata oluştu: ' + error.message);
-        res.redirect('/auth/kayit');
+        console.error('Kayıt hatası:', error);
+        req.flash('error', 'Kayıt olurken bir hata oluştu. Lütfen tüm bilgileri kontrol edip tekrar deneyin.');
+        res.redirect('/kayit');
     }
 });
 
@@ -151,15 +183,15 @@ router.post('/giris', async (req, res) => {
 });
 
 // Admin Ekleme Sayfası
-router.get('/admin/admin_ekle', adminKontrol, (req, res) => {
+router.get('/admin/kullanici-ekle', adminKontrol, (req, res) => {
     res.render('admin/admin_ekle', {
-        title: 'Yeni Admin Ekle',
+        title: 'Admin Ekle',
         user: req.session.user
     });
 });
 
 // Admin Ekleme İşlemi
-router.post('/admin/admin_ekle', adminKontrol, async (req, res) => {
+router.post('/admin/kullanici-ekle', adminKontrol, async (req, res) => {
     try {
         const { isim, soyisim, tcNo, email, aileLakabi, sifre } = req.body;
         
@@ -178,7 +210,7 @@ router.post('/admin/admin_ekle', adminKontrol, async (req, res) => {
         res.redirect('/admin/panel');
     } catch (error) {
         req.flash('error', 'Admin eklenirken bir hata oluştu: ' + error.message);
-        res.redirect('/admin/admin_ekle');
+        res.redirect('/admin/kullanici-ekle');
     }
 });
 
@@ -192,64 +224,57 @@ router.post('/cikis', (req, res) => {
     });
 });
 
-// Üye Yönetimi Sayfası
+// Üye Listesi
 router.get('/admin/uyeler', adminKontrol, async (req, res) => {
     try {
-        const bekleyenUyeler = await User.find({ uyelikDurumu: 'beklemede' }).sort({ kayitTarihi: -1 });
-        const tumUyeler = await User.find().sort({ kayitTarihi: -1 });
-
+        const kullanicilar = await User.find().sort({ kayitTarihi: -1 });
         res.render('admin/uyeler', {
             title: 'Üye Yönetimi',
             user: req.session.user,
-            bekleyenUyeler,
-            tumUyeler
+            kullanicilar: kullanicilar
         });
     } catch (error) {
-        req.flash('error', 'Üye listesi yüklenirken bir hata oluştu');
+        console.error('Üye listesi hatası:', error);
+        req.flash('error', 'Üyeler yüklenirken bir hata oluştu');
         res.redirect('/admin/panel');
     }
 });
 
-// Üyelik Onaylama
-router.post('/admin/uye-onayla/:id', adminKontrol, async (req, res) => {
+// Üye Durum Değiştirme
+router.post('/admin/uye-durum-degistir/:id/:yeniDurum', adminKontrol, async (req, res) => {
     try {
-        const uye = await User.findByIdAndUpdate(
-            req.params.id,
-            { uyelikDurumu: 'onaylandı' },
-            { new: true }
-        );
-
+        const uye = await User.findById(req.params.id);
         if (!uye) {
             req.flash('error', 'Üye bulunamadı');
             return res.redirect('/admin/uyeler');
         }
 
-        req.flash('success', 'Üyelik başarıyla onaylandı');
-        res.redirect('/admin/uyeler');
-    } catch (error) {
-        req.flash('error', 'Üyelik onaylanırken bir hata oluştu');
-        res.redirect('/admin/uyeler');
-    }
-});
-
-// Üyelik Reddetme
-router.post('/admin/uye-reddet/:id', adminKontrol, async (req, res) => {
-    try {
-        const uye = await User.findByIdAndUpdate(
-            req.params.id,
-            { uyelikDurumu: 'reddedildi' },
-            { new: true }
-        );
-
-        if (!uye) {
-            req.flash('error', 'Üye bulunamadı');
+        // Admin'in durumu değiştirilmeye çalışılıyorsa engelle
+        if (uye.rol === 'admin') {
+            req.flash('error', 'Admin kullanıcısının durumu değiştirilemez');
             return res.redirect('/admin/uyeler');
         }
 
-        req.flash('success', 'Üyelik başvurusu reddedildi');
+        uye.rol = req.params.yeniDurum;
+        await uye.save();
+
+        let mesaj = '';
+        switch(req.params.yeniDurum) {
+            case 'aktif_uye':
+                mesaj = 'Üye başarıyla aktifleştirildi';
+                break;
+            case 'pasif_uye':
+                mesaj = 'Üye başarıyla pasifleştirildi';
+                break;
+            default:
+                mesaj = 'Üye durumu güncellendi';
+        }
+
+        req.flash('success', mesaj);
         res.redirect('/admin/uyeler');
     } catch (error) {
-        req.flash('error', 'İşlem sırasında bir hata oluştu');
+        console.error('Üye durum değiştirme hatası:', error);
+        req.flash('error', 'Üye durumu değiştirilirken bir hata oluştu');
         res.redirect('/admin/uyeler');
     }
 });
@@ -300,56 +325,6 @@ router.post('/admin/uye-duzenle/:id', adminKontrol, async (req, res) => {
     } catch (error) {
         req.flash('error', 'Güncelleme sırasında bir hata oluştu: ' + error.message);
         res.redirect(`/admin/uye-duzenle/${req.params.id}`);
-    }
-});
-
-// Üye Durumu Değiştirme
-router.post('/admin/uye-durum-degistir/:id/:yeniDurum', adminKontrol, async (req, res) => {
-    try {
-        const { id, yeniDurum } = req.params;
-        
-        // Geçerli durum kontrolü
-        if (!['aktif_uye', 'pasif_uye', 'admin', 'beklemede'].includes(yeniDurum)) {
-            req.flash('error', 'Geçersiz üyelik durumu');
-            return res.redirect('/admin/uyeler');
-        }
-
-        const uye = await User.findById(id);
-        if (!uye) {
-            req.flash('error', 'Üye bulunamadı');
-            return res.redirect('/admin/uyeler');
-        }
-
-        // Admin'in durumu değiştirilemez kontrolü
-        if (uye.rol === 'admin' && yeniDurum !== 'admin') {
-            req.flash('error', 'Admin üyelerin durumu değiştirilemez');
-            return res.redirect('/admin/uyeler');
-        }
-
-        uye.rol = yeniDurum;
-        await uye.save();
-
-        let mesaj = '';
-        switch(yeniDurum) {
-            case 'aktif_uye':
-                mesaj = 'Üye başarıyla aktifleştirildi';
-                break;
-            case 'pasif_uye':
-                mesaj = 'Üye pasif duruma alındı';
-                break;
-            case 'beklemede':
-                mesaj = 'Üye bekleme durumuna alındı';
-                break;
-            case 'admin':
-                mesaj = 'Kullanıcı admin olarak atandı';
-                break;
-        }
-
-        req.flash('success', mesaj);
-        res.redirect('/admin/uyeler');
-    } catch (error) {
-        req.flash('error', 'İşlem sırasında bir hata oluştu: ' + error.message);
-        res.redirect('/admin/uyeler');
     }
 });
 
@@ -455,6 +430,32 @@ router.post('/profil/sifre-degistir', girisKontrol, async (req, res) => {
     } catch (error) {
         req.flash('error', 'Şifre değiştirme sırasında bir hata oluştu');
         res.redirect('/profil/sifre-degistir');
+    }
+});
+
+// Üye Silme
+router.post('/admin/uye-sil/:id', adminKontrol, async (req, res) => {
+    try {
+        const uye = await User.findById(req.params.id);
+        
+        if (!uye) {
+            req.flash('error', 'Üye bulunamadı');
+            return res.redirect('/admin/uyeler');
+        }
+
+        // Admin kullanıcısının silinmesini engelle
+        if (uye.rol === 'admin') {
+            req.flash('error', 'Admin kullanıcısı silinemez');
+            return res.redirect('/admin/uyeler');
+        }
+
+        await User.findByIdAndDelete(req.params.id);
+        req.flash('success', 'Üye başarıyla silindi');
+        res.redirect('/admin/uyeler');
+    } catch (error) {
+        console.error('Üye silme hatası:', error);
+        req.flash('error', 'Üye silinirken bir hata oluştu');
+        res.redirect('/admin/uyeler');
     }
 });
 

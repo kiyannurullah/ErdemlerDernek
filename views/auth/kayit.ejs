@@ -3,7 +3,7 @@
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-body">
-                    <h2 class="text-center mb-4">Üye Ol</h2>
+                    <h2 class="card-title text-center mb-4">Üye Ol</h2>
 
                     <% if (messages.success && messages.success.length > 0) { %>
                         <div class="alert alert-success">
@@ -22,7 +22,7 @@
                             <label for="isim" class="form-label">İsim</label>
                             <input type="text" class="form-control" id="isim" name="isim" required>
                             <div class="invalid-feedback">
-                                İsim alanı zorunludur
+                                İsim alanı zorunludur.
                             </div>
                         </div>
 
@@ -30,24 +30,16 @@
                             <label for="soyisim" class="form-label">Soyisim</label>
                             <input type="text" class="form-control" id="soyisim" name="soyisim" required>
                             <div class="invalid-feedback">
-                                Soyisim alanı zorunludur
+                                Soyisim alanı zorunludur.
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="tcNo" class="form-label">TC Kimlik No</label>
-                            <input type="text" class="form-control" id="tcNo" name="tcNo" 
-                                   pattern="[0-9]{11}" title="TC Kimlik No 11 haneli olmalıdır" required>
+                            <input type="text" class="form-control" id="tcNo" name="tcNo" required 
+                                   pattern="[0-9]{11}" maxlength="11">
                             <div class="invalid-feedback">
-                                Geçerli bir TC Kimlik No giriniz (11 haneli)
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="email" class="form-label">E-posta</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                            <div class="invalid-feedback">
-                                Geçerli bir e-posta adresi giriniz
+                                Geçerli bir TC Kimlik No giriniz (11 haneli).
                             </div>
                         </div>
 
@@ -55,31 +47,40 @@
                             <label for="aileLakabi" class="form-label">Aile Lakabı</label>
                             <input type="text" class="form-control" id="aileLakabi" name="aileLakabi" required>
                             <div class="invalid-feedback">
-                                Aile lakabı alanı zorunludur
+                                Aile lakabı alanı zorunludur.
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="adres" class="form-label">Adres</label>
-                            <textarea class="form-control" id="adres" name="adres" rows="3" required></textarea>
-                            <div class="form-text">Lütfen açık adresinizi giriniz.</div>
+                            <label for="email" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">
+                                Geçerli bir e-posta adresi giriniz.
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="sifre" class="form-label">Şifre</label>
-                            <input type="password" class="form-control" id="sifre" name="sifre" 
-                                   minlength="6" required>
+                            <input type="password" class="form-control" id="sifre" name="sifre" required 
+                                   minlength="6">
                             <div class="invalid-feedback">
-                                Şifre en az 6 karakter olmalıdır
+                                Şifre en az 6 karakter olmalıdır.
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Üye Ol</button>
-                    </form>
+                        <div class="mb-3">
+                            <label for="sifreTekrar" class="form-label">Şifre Tekrar</label>
+                            <input type="password" class="form-control" id="sifreTekrar" name="sifreTekrar" required>
+                            <div class="invalid-feedback">
+                                Şifreler eşleşmiyor.
+                            </div>
+                        </div>
 
-                    <div class="text-center mt-3">
-                        <p>Zaten üye misiniz? <a href="/giris">Giriş Yapın</a></p>
-                    </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Üye Ol</button>
+                            <a href="/giris" class="btn btn-link text-center">Zaten üye misiniz? Giriş yapın</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -87,19 +88,30 @@
 </div>
 
 <script>
-// Bootstrap form validasyonu için
+// Form doğrulama
 (function () {
     'use strict'
     var forms = document.querySelectorAll('.needs-validation')
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+
+            // Şifre kontrolü
+            var sifre = document.getElementById('sifre')
+            var sifreTekrar = document.getElementById('sifreTekrar')
+            if (sifre.value !== sifreTekrar.value) {
+                sifreTekrar.setCustomValidity('Şifreler eşleşmiyor')
+                event.preventDefault()
+                event.stopPropagation()
+            } else {
+                sifreTekrar.setCustomValidity('')
+            }
+
+            form.classList.add('was-validated')
+        }, false)
+    })
 })()
 </script> 

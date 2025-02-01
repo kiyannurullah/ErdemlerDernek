@@ -8,6 +8,7 @@
     "dev": "nodemon app.js"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.2",
     "connect-flash": "^0.1.1",

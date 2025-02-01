@@ -1,0 +1,103 @@
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title">Yeni Etkinlik Ekle</h2>
+                        <div>
+                            <a href="/etkinlikler/admin/liste" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Listeye Dön
+                            </a>
+                        </div>
+                    </div>
+
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success">
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/etkinlikler/admin/ekle" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="baslik" class="form-label">Başlık</label>
+                            <input type="text" class="form-control" id="baslik" name="baslik" required>
+                            <div class="invalid-feedback">
+                                Lütfen bir başlık girin.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="aciklama" class="form-label">Açıklama</label>
+                            <textarea class="form-control" id="aciklama" name="aciklama" rows="4" required></textarea>
+                            <div class="invalid-feedback">
+                                Lütfen bir açıklama girin.
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tarih" class="form-label">Tarih</label>
+                                <input type="date" class="form-control" id="tarih" name="tarih" required>
+                                <div class="invalid-feedback">
+                                    Lütfen bir tarih seçin.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="saat" class="form-label">Saat</label>
+                                <input type="time" class="form-control" id="saat" name="saat" required>
+                                <div class="invalid-feedback">
+                                    Lütfen bir saat seçin.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="yer" class="form-label">Yer</label>
+                            <input type="text" class="form-control" id="yer" name="yer" required>
+                            <div class="invalid-feedback">
+                                Lütfen etkinlik yerini girin.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="gorsel" class="form-label">Görsel (İsteğe bağlı)</label>
+                            <input type="file" class="form-control" id="gorsel" name="gorsel" accept="image/*">
+                            <div class="form-text">Sadece resim dosyaları (jpg, jpeg, png) yüklenebilir.</div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Etkinliği Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form doğrulama için Bootstrap validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script> 

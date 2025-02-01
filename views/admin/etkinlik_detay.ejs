@@ -1,0 +1,120 @@
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title">Etkinlik Detayı</h2>
+                        <div>
+                            <a href="/etkinlikler/admin/duzenle/<%= etkinlik._id %>" class="btn btn-warning me-2">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </a>
+                            <a href="/etkinlikler/admin/liste" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Listeye Dön
+                            </a>
+                        </div>
+                    </div>
+
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success">
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <% if (etkinlik.gorsel) { %>
+                        <div class="text-center mb-4">
+                            <img src="<%= etkinlik.gorsel %>" alt="<%= etkinlik.baslik %>" class="img-fluid rounded" style="max-height: 300px;">
+                        </div>
+                    <% } %>
+
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h3 class="mb-3"><%= etkinlik.baslik %></h3>
+                            <p class="text-muted mb-4"><%= etkinlik.aciklama %></p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong><i class="far fa-calendar"></i> Tarih:</strong>
+                                <span class="ms-2"><%= new Date(etkinlik.tarih).toLocaleDateString('tr-TR') %></span>
+                            </div>
+                            <div class="mb-3">
+                                <strong><i class="far fa-clock"></i> Saat:</strong>
+                                <span class="ms-2"><%= etkinlik.saat %></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong><i class="fas fa-map-marker-alt"></i> Yer:</strong>
+                                <span class="ms-2"><%= etkinlik.yer %></span>
+                            </div>
+                            <div class="mb-3">
+                                <strong><i class="fas fa-info-circle"></i> Durum:</strong>
+                                <span class="ms-2">
+                                    <% if (etkinlik.durum === 'aktif') { %>
+                                        <span class="badge bg-success">Aktif</span>
+                                    <% } else { %>
+                                        <span class="badge bg-secondary">Pasif</span>
+                                    <% } %>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="text-muted">
+                                <small>
+                                    <strong>Oluşturulma Tarihi:</strong> 
+                                    <%= new Date(etkinlik.olusturmaTarihi).toLocaleString('tr-TR') %>
+                                </small>
+                            </div>
+                            <% if (etkinlik.olusturanId) { %>
+                                <div class="text-muted">
+                                    <small>
+                                        <strong>Oluşturan:</strong> 
+                                        <%= etkinlik.olusturanId.isim %> <%= etkinlik.olusturanId.soyisim %>
+                                    </small>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#silModal">
+                            <i class="fas fa-trash"></i> Etkinliği Sil
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="silModal" tabindex="-1" aria-labelledby="silModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="silModalLabel">Etkinliği Sil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                Bu etkinliği silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <form action="/etkinlikler/admin/sil/<%= etkinlik._id %>" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 

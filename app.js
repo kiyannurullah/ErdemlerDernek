@@ -63,10 +63,16 @@ const adminKontrol = (req, res, next) => {
 
 // Routes
 const authRoutes = require('./routes/auth');
-const aniRoutes = require('./routes/ani');
+const aniRouter = require('./routes/ani');
+const etkinlikRoutes = require('./routes/etkinlik');
+const duyuruRoutes = require('./routes/duyuru');
+const adminRouter = require('./routes/admin');
 
 app.use('/', authRoutes);
-app.use('/anilar', aniRoutes);
+app.use('/', aniRouter);
+app.use('/etkinlikler', etkinlikRoutes);
+app.use('/duyurular', duyuruRoutes);
+app.use('/admin', adminRouter);
 
 // Ana sayfa route'u
 app.get('/', (req, res) => {
@@ -110,14 +116,6 @@ app.get('/profil/duzenle', girisKontrol, async (req, res) => {
 app.get('/profil/sifre-degistir', girisKontrol, (req, res) => {
     res.render('sifre_degistir', {
         title: 'Şifre Değiştir',
-        user: req.session.user
-    });
-});
-
-// Admin panel
-app.get('/admin/panel', adminKontrol, (req, res) => {
-    res.render('admin/panel', {
-        title: 'Admin Paneli',
         user: req.session.user
     });
 });

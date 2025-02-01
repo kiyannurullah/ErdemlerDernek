@@ -1,0 +1,97 @@
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <% if (duyuru.gorsel) { %>
+                    <img src="<%= duyuru.gorsel %>" class="card-img-top" alt="<%= duyuru.baslik %>">
+                <% } %>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <% if (duyuru.onemDurumu === 'acil') { %>
+                            <h2 class="card-title text-danger">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <%= duyuru.baslik %>
+                            </h2>
+                        <% } else if (duyuru.onemDurumu === 'onemli') { %>
+                            <h2 class="card-title text-warning">
+                                <i class="fas fa-star"></i>
+                                <%= duyuru.baslik %>
+                            </h2>
+                        <% } else { %>
+                            <h2 class="card-title">
+                                <%= duyuru.baslik %>
+                            </h2>
+                        <% } %>
+                        <a href="/duyurular" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Tüm Duyurular
+                        </a>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="lead text-muted">
+                            <%= duyuru.icerik %>
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="far fa-clock"></i> Yayınlanma Tarihi:
+                                    <%= new Date(duyuru.olusturmaTarihi).toLocaleDateString('tr-TR', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    }) %>
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-user"></i> Yayınlayan:
+                                    <% if (duyuru.olusturanId) { %>
+                                        <%= duyuru.olusturanId.isim %> <%= duyuru.olusturanId.soyisim %>
+                                    <% } else { %>
+                                        Bilinmiyor
+                                    <% } %>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" type="button" onclick="paylas()">
+                                    <i class="fas fa-share-alt"></i> Bu Duyuruyu Paylaş
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function paylas() {
+    if (navigator.share) {
+        navigator.share({
+            title: '<%= duyuru.baslik %>',
+            text: '<%= duyuru.icerik %>',
+            url: window.location.href
+        })
+        .then(() => console.log('Paylaşım başarılı.'))
+        .catch((error) => console.log('Paylaşım hatası:', error));
+    } else {
+        // Tarayıcı paylaşım API'sini desteklemiyorsa URL'yi kopyala
+        const url = window.location.href;
+        navigator.clipboard.writeText(url)
+            .then(() => alert('Duyuru bağlantısı panoya kopyalandı!'))
+            .catch(() => alert('Bağlantı kopyalanamadı. Lütfen manuel olarak kopyalayın.'));
+    }
+}
+</script> 

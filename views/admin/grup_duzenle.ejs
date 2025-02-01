@@ -1,0 +1,97 @@
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title">Grup Düzenle</h2>
+                        <a href="/admin/gruplar" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Gruplara Dön
+                        </a>
+                    </div>
+
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/admin/grup-duzenle/<%= grup._id %>" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="isim" class="form-label">Grup Adı</label>
+                            <input type="text" class="form-control" id="isim" name="isim" value="<%= grup.isim %>" required>
+                            <div class="invalid-feedback">
+                                Grup adı gereklidir.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="aciklama" class="form-label">Açıklama</label>
+                            <textarea class="form-control" id="aciklama" name="aciklama" rows="3"><%= grup.aciklama %></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Üyeler</label>
+                            <div class="mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="tumunuSec()">Tümünü Seç</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="tumunuKaldir()">Tümünü Kaldır</button>
+                            </div>
+                            <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                <% if (kullanicilar && kullanicilar.length > 0) { %>
+                                    <% kullanicilar.forEach(function(kullanici) { %>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="uyeler[]" 
+                                                value="<%= kullanici._id %>" 
+                                                id="uye_<%= kullanici._id %>"
+                                                <% if (grup.uyeler.includes(kullanici._id.toString())) { %>checked<% } %>>
+                                            <label class="form-check-label" for="uye_<%= kullanici._id %>">
+                                                <%= kullanici.isim + ' ' + kullanici.soyisim %>
+                                                <% if (kullanici.rol === 'admin') { %>
+                                                    <span class="badge bg-danger">Admin</span>
+                                                <% } %>
+                                            </label>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p class="text-muted mb-0">Henüz hiç kullanıcı bulunmuyor.</p>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Değişiklikleri Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form doğrulama için Bootstrap kodu
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Tümünü seç/kaldır fonksiyonları
+function tumunuSec() {
+    document.querySelectorAll('input[name="uyeler[]"]').forEach(checkbox => checkbox.checked = true);
+}
+
+function tumunuKaldir() {
+    document.querySelectorAll('input[name="uyeler[]"]').forEach(checkbox => checkbox.checked = false);
+}
+</script> 

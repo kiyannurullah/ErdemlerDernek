@@ -1,0 +1,148 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Üye Yönetimi</h1>
+
+            <% if (messages.success && messages.success.length > 0) { %>
+                <div class="alert alert-success">
+                    <%= messages.success %>
+                </div>
+            <% } %>
+            <% if (messages.error && messages.error.length > 0) { %>
+                <div class="alert alert-danger">
+                    <%= messages.error %>
+                </div>
+            <% } %>
+
+            <!-- Bekleyen Üyelikler -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">Bekleyen Üyelik Başvuruları</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>İsim Soyisim</th>
+                                    <th>E-posta</th>
+                                    <th>TC No</th>
+                                    <th>Aile Lakabı</th>
+                                    <th>Başvuru Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% bekleyenUyeler.forEach(function(uye) { %>
+                                    <tr>
+                                        <td><%= uye.isim + ' ' + uye.soyisim %></td>
+                                        <td><%= uye.email %></td>
+                                        <td><%= uye.tcNo %></td>
+                                        <td><%= uye.aileLakabi %></td>
+                                        <td><%= new Date(uye.kayitTarihi).toLocaleDateString('tr-TR') %></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/admin/uye-duzenle/<%= uye._id %>" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i> Düzenle
+                                                </a>
+                                                <form action="/admin/uye-durum-degistir/<%= uye._id %>/aktif_uye" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                        <i class="fas fa-check"></i> Onayla
+                                                    </button>
+                                                </form>
+                                                <form action="/admin/uye-durum-degistir/<%= uye._id %>/pasif_uye" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                        <i class="fas fa-times"></i> Reddet
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                                <% if (bekleyenUyeler.length === 0) { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center">Bekleyen üyelik başvurusu bulunmamaktadır.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tüm Üyeler -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Tüm Üyeler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>İsim Soyisim</th>
+                                    <th>E-posta</th>
+                                    <th>TC No</th>
+                                    <th>Aile Lakabı</th>
+                                    <th>Üyelik Durumu</th>
+                                    <th>Kayıt Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% tumUyeler.forEach(function(uye) { %>
+                                    <tr>
+                                        <td><%= uye.isim + ' ' + uye.soyisim %></td>
+                                        <td><%= uye.email %></td>
+                                        <td><%= uye.tcNo %></td>
+                                        <td><%= uye.aileLakabi %></td>
+                                        <td>
+                                            <% let badgeClass = ''; %>
+                                            <% let statusText = ''; %>
+                                            <% if (uye.rol === 'aktif_uye') { %>
+                                                <% badgeClass = 'success'; statusText = 'Aktif Üye'; %>
+                                            <% } else if (uye.rol === 'pasif_uye') { %>
+                                                <% badgeClass = 'secondary'; statusText = 'Pasif Üye'; %>
+                                            <% } else if (uye.rol === 'admin') { %>
+                                                <% badgeClass = 'danger'; statusText = 'Admin'; %>
+                                            <% } else { %>
+                                                <% badgeClass = 'warning'; statusText = 'Onay Bekliyor'; %>
+                                            <% } %>
+                                            <span class="badge bg-<%= badgeClass %>">
+                                                <%= statusText %>
+                                            </span>
+                                        </td>
+                                        <td><%= new Date(uye.kayitTarihi).toLocaleDateString('tr-TR') %></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/admin/uye-duzenle/<%= uye._id %>" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i> Düzenle
+                                                </a>
+                                                <% if (uye.rol !== 'admin') { %>
+                                                    <% if (uye.rol !== 'aktif_uye') { %>
+                                                        <form action="/admin/uye-durum-degistir/<%= uye._id %>/aktif_uye" method="POST" class="d-inline">
+                                                            <button type="submit" class="btn btn-success btn-sm">
+                                                                <i class="fas fa-check"></i> Aktifleştir
+                                                            </button>
+                                                        </form>
+                                                    <% } %>
+                                                    <% if (uye.rol !== 'pasif_uye') { %>
+                                                        <form action="/admin/uye-durum-degistir/<%= uye._id %>/pasif_uye" method="POST" class="d-inline">
+                                                            <button type="submit" class="btn btn-warning btn-sm">
+                                                                <i class="fas fa-pause"></i> Pasifleştir
+                                                            </button>
+                                                        </form>
+                                                    <% } %>
+                                                <% } %>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

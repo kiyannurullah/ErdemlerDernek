@@ -1,0 +1,104 @@
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Profil Düzenle</h2>
+
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success">
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/profil/duzenle" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="isim" class="form-label">İsim</label>
+                            <input type="text" class="form-control" id="isim" name="isim" 
+                                   value="<%= kullanici.isim %>" required>
+                            <div class="invalid-feedback">
+                                İsim alanı zorunludur
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="soyisim" class="form-label">Soyisim</label>
+                            <input type="text" class="form-control" id="soyisim" name="soyisim" 
+                                   value="<%= kullanici.soyisim %>" required>
+                            <div class="invalid-feedback">
+                                Soyisim alanı zorunludur
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tcNo" class="form-label">TC Kimlik No</label>
+                            <input type="text" class="form-control" id="tcNo" name="tcNo" 
+                                   value="<%= kullanici.tcNo %>"
+                                   pattern="[0-9]{11}" title="TC Kimlik No 11 haneli olmalıdır" required>
+                            <div class="invalid-feedback">
+                                Geçerli bir TC Kimlik No giriniz (11 haneli)
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="<%= kullanici.email %>" required>
+                            <div class="invalid-feedback">
+                                Geçerli bir e-posta adresi giriniz
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="aileLakabi" class="form-label">Aile Lakabı</label>
+                            <input type="text" class="form-control" id="aileLakabi" name="aileLakabi" 
+                                   value="<%= kullanici.aileLakabi %>" required>
+                            <div class="invalid-feedback">
+                                Aile lakabı alanı zorunludur
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="adres" class="form-label">Adres</label>
+                            <textarea class="form-control" id="adres" name="adres" rows="3" required><%= kullanici.adres %></textarea>
+                            <div class="form-text">Lütfen açık adresinizi giriniz.</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Değişiklikleri Kaydet
+                            </button>
+                            <a href="/profil" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Profile Dön
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Bootstrap form validasyonu için
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script> 

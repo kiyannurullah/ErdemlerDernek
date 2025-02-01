@@ -1,0 +1,58 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="jumbotron text-center">
+                <h1 class="display-4">Erdemler Derneği'ne Hoş Geldiniz</h1>
+                <p class="lead">Derneğimizin web sitesine hoş geldiniz. Burada dernek üyelerimizin paylaştığı anıları okuyabilir, etkinliklerimizi takip edebilir ve duyurularımızı görebilirsiniz.</p>
+                <hr class="my-4">
+                <% if (!user) { %>
+                    <p>Siz de aramıza katılmak ister misiniz?</p>
+                    <a class="btn btn-primary btn-lg" href="/kayit" role="button">
+                        <i class="fas fa-user-plus"></i> Hemen Üye Ol
+                    </a>
+                <% } else { %>
+                    <p>Hoş geldiniz, <%= user.isim %>!</p>
+                    <a class="btn btn-primary btn-lg" href="/anilar" role="button">
+                        <i class="fas fa-book"></i> Anıları Görüntüle
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Anılar</h5>
+                    <p class="card-text">Dernek üyelerimizin paylaştığı değerli anıları okuyabilir ve kendi anılarınızı paylaşabilirsiniz.</p>
+                    <a href="/anilar" class="btn btn-primary">
+                        <i class="fas fa-book"></i> Anıları Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Etkinlikler</h5>
+                    <p class="card-text">Derneğimizin düzenlediği etkinlikleri takip edebilir ve katılım sağlayabilirsiniz.</p>
+                    <a href="/etkinlikler" class="btn btn-primary">
+                        <i class="fas fa-calendar-alt"></i> Etkinlikleri Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Duyurular</h5>
+                    <p class="card-text">Derneğimizle ilgili en güncel duyuruları ve haberleri buradan takip edebilirsiniz.</p>
+                    <a href="/duyurular" class="btn btn-primary">
+                        <i class="fas fa-bullhorn"></i> Duyuruları Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

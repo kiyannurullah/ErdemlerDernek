@@ -1,0 +1,86 @@
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Üye Bilgilerini Düzenle</h2>
+                    
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/admin/uye-duzenle/<%= uye._id %>" method="POST" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="isim" class="form-label">İsim</label>
+                                <input type="text" class="form-control" id="isim" name="isim" 
+                                       value="<%= uye.isim %>" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="soyisim" class="form-label">Soyisim</label>
+                                <input type="text" class="form-control" id="soyisim" name="soyisim" 
+                                       value="<%= uye.soyisim %>" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tcNo" class="form-label">TC Kimlik No</label>
+                            <input type="text" class="form-control" id="tcNo" name="tcNo" 
+                                   value="<%= uye.tcNo %>" pattern="[0-9]{11}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="<%= uye.email %>" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="aileLakabi" class="form-label">Aile Lakabı</label>
+                            <input type="text" class="form-control" id="aileLakabi" name="aileLakabi" 
+                                   value="<%= uye.aileLakabi %>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="rol" class="form-label">Üyelik Durumu</label>
+                            <select class="form-select" id="rol" name="rol">
+                                <option value="aktif_uye" <%= uye.rol === 'aktif_uye' ? 'selected' : '' %>>
+                                    Aktif Üye
+                                </option>
+                                <option value="pasif_uye" <%= uye.rol === 'pasif_uye' ? 'selected' : '' %>>
+                                    Pasif Üye
+                                </option>
+                                <option value="admin" <%= uye.rol === 'admin' ? 'selected' : '' %>>
+                                    Admin
+                                </option>
+                                <option value="beklemede" <%= uye.rol === 'beklemede' ? 'selected' : '' %>>
+                                    Onay Bekleyen Üye
+                                </option>
+                            </select>
+                            <div class="form-text">
+                                <ul class="mb-0 ps-3">
+                                    <li><strong>Aktif Üye:</strong> Tüm üyelik özelliklerine erişebilir</li>
+                                    <li><strong>Pasif Üye:</strong> Üyeliği dondurulmuş, sınırlı erişim</li>
+                                    <li><strong>Admin:</strong> Tüm yönetim yetkilerine sahip</li>
+                                    <li><strong>Onay Bekleyen Üye:</strong> Başvurusu inceleme aşamasında</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Değişiklikleri Kaydet
+                            </button>
+                            <a href="/admin/uyeler" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Geri Dön
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

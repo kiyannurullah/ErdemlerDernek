@@ -1,0 +1,98 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Profil Bilgileri</h5>
+                    <hr>
+                    <div class="mb-3">
+                        <strong>İsim:</strong> <%= kullanici.isim %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Soyisim:</strong> <%= kullanici.soyisim %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>TC Kimlik No:</strong> <%= kullanici.tcNo %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>E-posta:</strong> <%= kullanici.email %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Aile Lakabı:</strong> <%= kullanici.aileLakabi %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Adres:</strong> <%= kullanici.adres %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Üyelik Durumu:</strong>
+                        <% if (kullanici.rol === 'admin') { %>
+                            <span class="badge bg-danger">Admin</span>
+                        <% } else if (kullanici.rol === 'aktif_uye') { %>
+                            <span class="badge bg-success">Aktif Üye</span>
+                        <% } else if (kullanici.rol === 'beklemede') { %>
+                            <span class="badge bg-warning text-dark">Onay Bekliyor</span>
+                        <% } else if (kullanici.rol === 'pasif_uye') { %>
+                            <span class="badge bg-secondary">Pasif Üye</span>
+                        <% } %>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="/profil/duzenle" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Profili Düzenle
+                        </a>
+                        <a href="/profil/sifre-degistir" class="btn btn-warning">
+                            <i class="fas fa-key"></i> Şifre Değiştir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Aktiviteler</h5>
+                    <hr>
+                    <% if (kullanici.rol === 'beklemede') { %>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Üyelik başvurunuz onay bekliyor. Onaylandıktan sonra tüm özelliklere erişebileceksiniz.
+                        </div>
+                    <% } else if (kullanici.rol === 'pasif_uye') { %>
+                        <div class="alert alert-secondary">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Üyeliğiniz şu anda pasif durumda. Lütfen yönetici ile iletişime geçin.
+                        </div>
+                    <% } else { %>
+                        <div class="list-group">
+                            <% if (kullanici.rol === 'admin' || kullanici.rol === 'aktif_uye') { %>
+                                <a href="/anilar" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-book"></i> Anılarım
+                                </a>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    background-color: #007bff;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.initials {
+    font-size: 40px;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+</style> 

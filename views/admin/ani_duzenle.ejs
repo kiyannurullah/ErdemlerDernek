@@ -1,0 +1,107 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title">Anı Düzenle</h2>
+                        <div>
+                            <a href="/anilar/admin/liste" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Listeye Dön
+                            </a>
+                        </div>
+                    </div>
+
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success">
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/anilar/admin/duzenle/<%= ani._id %>" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="baslik" class="form-label">Başlık</label>
+                            <input type="text" class="form-control" id="baslik" name="baslik" value="<%= ani.baslik %>" required>
+                            <div class="invalid-feedback">
+                                Lütfen bir başlık girin.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="icerik" class="form-label">İçerik</label>
+                            <textarea class="form-control" id="icerik" name="icerik" rows="6" required><%= ani.icerik %></textarea>
+                            <div class="invalid-feedback">
+                                Lütfen anı içeriğini girin.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="onayDurumu" class="form-label">Durum</label>
+                            <select class="form-select" id="onayDurumu" name="onayDurumu">
+                                <option value="beklemede" <%= ani.onayDurumu === 'beklemede' ? 'selected' : '' %>>Beklemede</option>
+                                <option value="onaylandi" <%= ani.onayDurumu === 'onaylandi' ? 'selected' : '' %>>Onaylandı</option>
+                                <option value="reddedildi" <%= ani.onayDurumu === 'reddedildi' ? 'selected' : '' %>>Reddedildi</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mevcut Görsel</label>
+                            <% if (ani.gorsel) { %>
+                                <div class="mb-2">
+                                    <img src="<%= ani.gorsel %>" alt="Mevcut görsel" class="img-thumbnail" style="max-height: 200px;">
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="gorselSil" name="gorselSil">
+                                    <label class="form-check-label" for="gorselSil">
+                                        Mevcut görseli kaldır
+                                    </label>
+                                </div>
+                            <% } else { %>
+                                <p class="text-muted">Görsel yok</p>
+                            <% } %>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="gorsel" class="form-label">Yeni Görsel Yükle (İsteğe bağlı)</label>
+                            <input type="file" class="form-control" id="gorsel" name="gorsel" accept="image/*">
+                            <div class="form-text">Sadece resim dosyaları (jpg, jpeg, png) yüklenebilir.</div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Değişiklikleri Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form doğrulama için Bootstrap validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+
+<%- include('../partials/footer') %> 

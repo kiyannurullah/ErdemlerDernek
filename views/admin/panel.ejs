@@ -1,0 +1,79 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="card-title text-center mb-4">Admin Paneli</h2>
+
+            <% if (messages.success && messages.success.length > 0) { %>
+                <div class="alert alert-success">
+                    <%= messages.success %>
+                </div>
+            <% } %>
+            <% if (messages.error && messages.error.length > 0) { %>
+                <div class="alert alert-danger">
+                    <%= messages.error %>
+                </div>
+            <% } %>
+
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Anı Yönetimi</h5>
+                            <p class="card-text">Tüm anıları görüntüle, düzenle ve yönet.</p>
+                            <div class="d-grid gap-2">
+                                <a href="/anilar/admin/liste" class="btn btn-primary">
+                                    <i class="fas fa-book"></i> Tüm Anıları Yönet
+                                </a>
+                                <a href="/anilar/admin/bekleyen" class="btn btn-warning">
+                                    <i class="fas fa-clock"></i> Bekleyen Anılar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Üye Yönetimi</h5>
+                            <p class="card-text">Üyeleri görüntüle ve yönet.</p>
+                            <a href="/admin/uyeler" class="btn btn-primary">Üyeleri Yönet</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Admin Yönetimi</h5>
+                            <p class="card-text">Yeni admin ekle ve mevcut adminleri yönet.</p>
+                            <a href="/admin/admin_ekle" class="btn btn-primary">Yeni Admin Ekle</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Etkinlik Yönetimi</h5>
+                            <p class="card-text">Etkinlikleri ekle, düzenle ve yönet.</p>
+                            <a href="/admin/etkinlikler" class="btn btn-primary">Etkinlikleri Yönet</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Duyuru Yönetimi</h5>
+                            <p class="card-text">Duyuruları ekle, düzenle ve yönet.</p>
+                            <a href="/admin/duyurular" class="btn btn-primary">Duyuruları Yönet</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

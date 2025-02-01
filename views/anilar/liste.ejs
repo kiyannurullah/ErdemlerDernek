@@ -1,0 +1,58 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Anılar</h1>
+                <a href="/anilar/ekle" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Yeni Anı Ekle
+                </a>
+            </div>
+
+            <% if (messages.success && messages.success.length > 0) { %>
+                <div class="alert alert-success">
+                    <%= messages.success %>
+                </div>
+            <% } %>
+            <% if (messages.error && messages.error.length > 0) { %>
+                <div class="alert alert-danger">
+                    <%= messages.error %>
+                </div>
+            <% } %>
+
+            <div class="row">
+                <% if (anilar.length > 0) { %>
+                    <% anilar.forEach(function(ani) { %>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <% if (ani.gorsel) { %>
+                                    <img src="<%= ani.gorsel %>" class="card-img-top" alt="<%= ani.baslik %>"
+                                         style="height: 200px; object-fit: cover;">
+                                <% } %>
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= ani.baslik %></h5>
+                                    <p class="card-text">
+                                        <%= ani.icerik.length > 200 ? ani.icerik.substring(0, 200) + '...' : ani.icerik %>
+                                    </p>
+                                    <a href="/anilar/<%= ani._id %>" class="btn btn-primary">Devamını Oku</a>
+                                </div>
+                                <div class="card-footer text-muted">
+                                    <small>
+                                        <i class="fas fa-user"></i> <%= ani.paylasanId.isim + ' ' + ani.paylasanId.soyisim %> |
+                                        <i class="fas fa-calendar"></i> <%= new Date(ani.paylasimTarihi).toLocaleDateString('tr-TR') %> |
+                                        <i class="fas fa-eye"></i> <%= ani.goruntulemeSayisi %> görüntüleme
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            Henüz paylaşılmış bir anı bulunmamaktadır.
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div> 

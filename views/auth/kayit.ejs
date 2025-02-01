@@ -1,0 +1,105 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Üye Ol</h2>
+
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success">
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/kayit" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="isim" class="form-label">İsim</label>
+                            <input type="text" class="form-control" id="isim" name="isim" required>
+                            <div class="invalid-feedback">
+                                İsim alanı zorunludur
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="soyisim" class="form-label">Soyisim</label>
+                            <input type="text" class="form-control" id="soyisim" name="soyisim" required>
+                            <div class="invalid-feedback">
+                                Soyisim alanı zorunludur
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tcNo" class="form-label">TC Kimlik No</label>
+                            <input type="text" class="form-control" id="tcNo" name="tcNo" 
+                                   pattern="[0-9]{11}" title="TC Kimlik No 11 haneli olmalıdır" required>
+                            <div class="invalid-feedback">
+                                Geçerli bir TC Kimlik No giriniz (11 haneli)
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">
+                                Geçerli bir e-posta adresi giriniz
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="aileLakabi" class="form-label">Aile Lakabı</label>
+                            <input type="text" class="form-control" id="aileLakabi" name="aileLakabi" required>
+                            <div class="invalid-feedback">
+                                Aile lakabı alanı zorunludur
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="adres" class="form-label">Adres</label>
+                            <textarea class="form-control" id="adres" name="adres" rows="3" required></textarea>
+                            <div class="form-text">Lütfen açık adresinizi giriniz.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sifre" class="form-label">Şifre</label>
+                            <input type="password" class="form-control" id="sifre" name="sifre" 
+                                   minlength="6" required>
+                            <div class="invalid-feedback">
+                                Şifre en az 6 karakter olmalıdır
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Üye Ol</button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <p>Zaten üye misiniz? <a href="/giris">Giriş Yapın</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Bootstrap form validasyonu için
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script> 

@@ -3,11 +3,12 @@ const mongoose = require('mongoose');
 const grupSchema = new mongoose.Schema({
     isim: {
         type: String,
-        required: true,
+        required: [true, 'Grup adı zorunludur'],
         unique: true
     },
     aciklama: {
-        type: String
+        type: String,
+        required: [true, 'Grup açıklaması zorunludur']
     },
     uyeler: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -22,6 +23,8 @@ const grupSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Grup', grupSchema); 

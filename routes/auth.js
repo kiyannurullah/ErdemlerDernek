@@ -147,23 +147,18 @@ router.post('/giris', async (req, res) => {
 
         if (!uye) {
             req.flash('error', 'E-posta veya şifre hatalı');
-            return res.redirect('/auth/giris');
+            return res.redirect('/giris');
         }
 
         const sifreEslesti = await bcrypt.compare(sifre, uye.sifre);
         if (!sifreEslesti) {
             req.flash('error', 'E-posta veya şifre hatalı');
-            return res.redirect('/auth/giris');
+            return res.redirect('/giris');
         }
 
-        if (uye.rol === 'beklemede') {
-            req.flash('error', 'Hesabınız henüz onaylanmamış. Lütfen onay için bekleyin.');
-            return res.redirect('/auth/giris');
-        }
-
-        if (uye.rol === 'pasif') {
+        if (uye.rol === 'pasif_uye') {
             req.flash('error', 'Hesabınız pasif durumda. Lütfen yönetici ile iletişime geçin.');
-            return res.redirect('/auth/giris');
+            return res.redirect('/giris');
         }
 
         req.session.user = {
@@ -174,11 +169,16 @@ router.post('/giris', async (req, res) => {
             rol: uye.rol
         };
 
-        req.flash('success', 'Başarıyla giriş yaptınız');
+        if (uye.rol === 'beklemede') {
+            req.flash('warning', 'Hesabınız henüz onaylanmamış. Anılar bölümüne erişiminiz onaylandıktan sonra açılacaktır.');
+        } else {
+            req.flash('success', 'Başarıyla giriş yaptınız');
+        }
+        
         res.redirect('/');
     } catch (error) {
         req.flash('error', 'Giriş yapılırken bir hata oluştu');
-        res.redirect('/auth/giris');
+        res.redirect('/giris');
     }
 });
 

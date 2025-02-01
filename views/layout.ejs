@@ -40,14 +40,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/">Ana Sayfa</a>
                     </li>
-                    <% if (user) { %>
-                        <% if (user.rol === 'aktif_uye' || user.rol === 'admin') { %>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/anilar">
-                                    <i class="fas fa-book"></i> Anılar
-                                </a>
-                            </li>
-                        <% } %>
+                    <% if (user && (user.rol === 'aktif_uye' || user.rol === 'admin')) { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/anilar">
+                                <i class="fas fa-book"></i> Anılar
+                            </a>
+                        </li>
                     <% } %>
                 </ul>
                 <ul class="navbar-nav">
@@ -103,6 +101,31 @@
     </nav>
 
     <main>
+        <% if (messages.success && messages.success.length > 0) { %>
+            <div class="container mt-3">
+                <div class="alert alert-success">
+                    <%= messages.success %>
+                </div>
+            </div>
+        <% } %>
+        
+        <% if (messages.error && messages.error.length > 0) { %>
+            <div class="container mt-3">
+                <div class="alert alert-danger">
+                    <%= messages.error %>
+                </div>
+            </div>
+        <% } %>
+
+        <% if (messages.warning && messages.warning.length > 0) { %>
+            <div class="container mt-3">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <%= messages.warning %>
+                </div>
+            </div>
+        <% } %>
+
         <%- body %>
     </main>
     

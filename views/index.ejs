@@ -10,11 +10,25 @@
                     <a class="btn btn-primary btn-lg" href="/kayit" role="button">
                         <i class="fas fa-user-plus"></i> Hemen Üye Ol
                     </a>
+                <% } else if (user.rol === 'beklemede') { %>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <strong>Üyelik Başvurunuz İnceleniyor</strong>
+                        <p class="mb-0">Üyelik başvurunuz admin tarafından incelenmektedir. Onaylandıktan sonra tüm özelliklere erişebileceksiniz.</p>
+                    </div>
+                <% } else if (user.rol === 'pasif_uye') { %>
+                    <div class="alert alert-secondary">
+                        <i class="fas fa-user-clock"></i>
+                        <strong>Pasif Üyelik</strong>
+                        <p class="mb-0">Üyeliğiniz şu anda pasif durumdadır. Detaylı bilgi için lütfen dernek yönetimi ile iletişime geçin.</p>
+                    </div>
                 <% } else { %>
                     <p>Hoş geldiniz, <%= user.isim %>!</p>
-                    <a class="btn btn-primary btn-lg" href="/anilar" role="button">
-                        <i class="fas fa-book"></i> Anıları Görüntüle
-                    </a>
+                    <% if (user.rol === 'aktif_uye' || user.rol === 'admin') { %>
+                        <a class="btn btn-primary btn-lg" href="/anilar" role="button">
+                            <i class="fas fa-book"></i> Anıları Görüntüle
+                        </a>
+                    <% } %>
                 <% } %>
             </div>
         </div>
@@ -26,9 +40,19 @@
                 <div class="card-body">
                     <h5 class="card-title">Anılar</h5>
                     <p class="card-text">Dernek üyelerimizin paylaştığı değerli anıları okuyabilir ve kendi anılarınızı paylaşabilirsiniz.</p>
-                    <a href="/anilar" class="btn btn-primary">
-                        <i class="fas fa-book"></i> Anıları Görüntüle
-                    </a>
+                    <% if (user && (user.rol === 'aktif_uye' || user.rol === 'admin')) { %>
+                        <a href="/anilar" class="btn btn-primary">
+                            <i class="fas fa-book"></i> Anıları Görüntüle
+                        </a>
+                    <% } else if (user && user.rol === 'beklemede') { %>
+                        <div class="alert alert-warning mt-2">
+                            <small>Üyeliğiniz onaylandıktan sonra anılara erişebileceksiniz.</small>
+                        </div>
+                    <% } else if (!user) { %>
+                        <a href="/giris" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Giriş Yapın
+                        </a>
+                    <% } %>
                 </div>
             </div>
         </div>

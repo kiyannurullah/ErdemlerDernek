@@ -18,15 +18,10 @@ const adminKontrol = (req, res, next) => {
 // Görsel yükleme ayarları
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const dir = 'public/uploads/etkinlikler';
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir);
+        cb(null, 'public/uploads/etkinlikler')
     },
     filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'etkinlik-' + uniqueSuffix + path.extname(file.originalname));
+        cb(null, Date.now() + path.extname(file.originalname))
     }
 });
 
@@ -36,7 +31,7 @@ const upload = multer({
         const filetypes = /jpeg|jpg|png/;
         const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
         const mimetype = filetypes.test(file.mimetype);
-        if (extname && mimetype) {
+        if (mimetype && extname) {
             return cb(null, true);
         } else {
             cb('Hata: Sadece resim dosyaları yüklenebilir!');
@@ -44,37 +39,21 @@ const upload = multer({
     }
 });
 
-// Etkinlik Listesi
+// Etkinlikler Sayfası
 router.get('/', async (req, res) => {
     try {
-        const etkinlikler = await Etkinlik.find({ durum: 'aktif' })
-            .populate('olusturanId', 'isim soyisim');
+        const etkinlikler = await Etkinlik.find()
+            .sort({ tarih: -1 });
 
-        res.render('etkinlikler', {
+        res.render('etkinlikler/liste', {
             title: 'Etkinlikler',
             user: req.session.user,
             etkinlikler: etkinlikler
         });
     } catch (error) {
+        console.error('Etkinlik listesi hatası:', error);
         req.flash('error', 'Etkinlikler yüklenirken bir hata oluştu');
         res.redirect('/');
-    }
-});
-
-// Admin - Etkinlik Listesi
-router.get('/admin/liste', adminKontrol, async (req, res) => {
-    try {
-        const etkinlikler = await Etkinlik.find()
-            .populate('olusturanId', 'isim soyisim');
-
-        res.render('admin/etkinlik_liste', {
-            title: 'Etkinlik Yönetimi',
-            user: req.session.user,
-            etkinlikler: etkinlikler
-        });
-    } catch (error) {
-        req.flash('error', 'Etkinlikler yüklenirken bir hata oluştu');
-        res.redirect('/admin');
     }
 });
 
@@ -89,29 +68,47 @@ router.get('/admin/ekle', adminKontrol, (req, res) => {
 // Admin - Etkinlik Ekleme İşlemi
 router.post('/admin/ekle', adminKontrol, upload.single('gorsel'), async (req, res) => {
     try {
-        const etkinlik = new Etkinlik({
-            baslik: req.body.baslik,
-            aciklama: req.body.aciklama,
-            tarih: req.body.tarih,
-            saat: req.body.saat,
-            yer: req.body.yer,
-            durum: req.body.durum,
-            olusturanId: req.session.user._id
-        });
+        const { baslik, aciklama, tarih, saat, konum } = req.body;
 
-        if (req.file) {
-            etkinlik.gorsel = '/uploads/etkinlikler/' + req.file.filename;
-        }
+        const etkinlik = new Etkinlik({
+            baslik,
+            aciklama,
+            tarih: new Date(tarih + 'T' + saat),
+            konum,
+            gorsel: req.file ? '/uploads/etkinlikler/' + req.file.filename : null,
+            ekleyenAdmin: req.session.user.id
+        });
 
         await etkinlik.save();
         req.flash('success', 'Etkinlik başarıyla eklendi');
-        res.redirect('/etkinlikler/admin/liste');
+        res.redirect('/etkinlikler');
     } catch (error) {
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
-        req.flash('error', 'Etkinlik eklenirken bir hata oluştu');
+        console.error('Etkinlik ekleme hatası:', error);
+        req.flash('error', 'Etkinlik eklenirken bir hata oluştu: ' + error.message);
         res.redirect('/etkinlikler/admin/ekle');
+    }
+});
+
+// Etkinlik Detay Sayfası
+router.get('/:id', async (req, res) => {
+    try {
+        const etkinlik = await Etkinlik.findById(req.params.id)
+            .populate('ekleyenAdmin', 'isim soyisim');
+
+        if (!etkinlik) {
+            req.flash('error', 'Etkinlik bulunamadı');
+            return res.redirect('/etkinlikler');
+        }
+
+        res.render('etkinlikler/detay', {
+            title: etkinlik.baslik,
+            user: req.session.user,
+            etkinlik: etkinlik
+        });
+    } catch (error) {
+        console.error('Etkinlik detay hatası:', error);
+        req.flash('error', 'Etkinlik yüklenirken bir hata oluştu');
+        res.redirect('/etkinlikler');
     }
 });
 
@@ -119,9 +116,10 @@ router.post('/admin/ekle', adminKontrol, upload.single('gorsel'), async (req, re
 router.get('/admin/duzenle/:id', adminKontrol, async (req, res) => {
     try {
         const etkinlik = await Etkinlik.findById(req.params.id);
+        
         if (!etkinlik) {
             req.flash('error', 'Etkinlik bulunamadı');
-            return res.redirect('/etkinlikler/admin/liste');
+            return res.redirect('/etkinlikler');
         }
 
         res.render('admin/etkinlik_duzenle', {
@@ -130,54 +128,39 @@ router.get('/admin/duzenle/:id', adminKontrol, async (req, res) => {
             etkinlik: etkinlik
         });
     } catch (error) {
-        req.flash('error', 'Etkinlik yüklenirken bir hata oluştu');
-        res.redirect('/etkinlikler/admin/liste');
+        console.error('Etkinlik düzenleme sayfası hatası:', error);
+        req.flash('error', 'Etkinlik bilgileri yüklenirken bir hata oluştu');
+        res.redirect('/etkinlikler');
     }
 });
 
 // Admin - Etkinlik Düzenleme İşlemi
 router.post('/admin/duzenle/:id', adminKontrol, upload.single('gorsel'), async (req, res) => {
     try {
+        const { baslik, aciklama, tarih, saat, konum } = req.body;
         const etkinlik = await Etkinlik.findById(req.params.id);
+
         if (!etkinlik) {
             req.flash('error', 'Etkinlik bulunamadı');
-            return res.redirect('/etkinlikler/admin/liste');
+            return res.redirect('/etkinlikler');
         }
 
-        etkinlik.baslik = req.body.baslik;
-        etkinlik.aciklama = req.body.aciklama;
-        etkinlik.tarih = req.body.tarih;
-        etkinlik.saat = req.body.saat;
-        etkinlik.yer = req.body.yer;
-        etkinlik.durum = req.body.durum;
-
-        if (req.body.gorselSil === 'on' && etkinlik.gorsel) {
-            const eskiGorselYolu = path.join(__dirname, '../public', etkinlik.gorsel);
-            if (fs.existsSync(eskiGorselYolu)) {
-                fs.unlinkSync(eskiGorselYolu);
-            }
-            etkinlik.gorsel = undefined;
-        }
+        etkinlik.baslik = baslik;
+        etkinlik.aciklama = aciklama;
+        etkinlik.tarih = new Date(tarih + 'T' + saat);
+        etkinlik.konum = konum;
 
         if (req.file) {
-            if (etkinlik.gorsel) {
-                const eskiGorselYolu = path.join(__dirname, '../public', etkinlik.gorsel);
-                if (fs.existsSync(eskiGorselYolu)) {
-                    fs.unlinkSync(eskiGorselYolu);
-                }
-            }
             etkinlik.gorsel = '/uploads/etkinlikler/' + req.file.filename;
         }
 
         await etkinlik.save();
         req.flash('success', 'Etkinlik başarıyla güncellendi');
-        res.redirect('/etkinlikler/admin/liste');
+        res.redirect('/etkinlikler');
     } catch (error) {
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
+        console.error('Etkinlik güncelleme hatası:', error);
         req.flash('error', 'Etkinlik güncellenirken bir hata oluştu');
-        res.redirect('/etkinlikler/admin/duzenle/' + req.params.id);
+        res.redirect(`/etkinlikler/admin/duzenle/${req.params.id}`);
     }
 });
 
@@ -187,9 +170,10 @@ router.post('/admin/sil/:id', adminKontrol, async (req, res) => {
         const etkinlik = await Etkinlik.findById(req.params.id);
         if (!etkinlik) {
             req.flash('error', 'Etkinlik bulunamadı');
-            return res.redirect('/etkinlikler/admin/liste');
+            return res.redirect('/etkinlikler');
         }
 
+        // Görsel varsa sil
         if (etkinlik.gorsel) {
             const gorselYolu = path.join(__dirname, '../public', etkinlik.gorsel);
             if (fs.existsSync(gorselYolu)) {
@@ -199,31 +183,10 @@ router.post('/admin/sil/:id', adminKontrol, async (req, res) => {
 
         await etkinlik.deleteOne();
         req.flash('success', 'Etkinlik başarıyla silindi');
-        res.redirect('/etkinlikler/admin/liste');
+        res.redirect('/etkinlikler');
     } catch (error) {
+        console.error('Etkinlik silme hatası:', error);
         req.flash('error', 'Etkinlik silinirken bir hata oluştu');
-        res.redirect('/etkinlikler/admin/liste');
-    }
-});
-
-// Etkinlik Detay Sayfası
-router.get('/:id', async (req, res) => {
-    try {
-        const etkinlik = await Etkinlik.findById(req.params.id)
-            .populate('olusturanId', 'isim soyisim');
-
-        if (!etkinlik || etkinlik.durum !== 'aktif') {
-            req.flash('error', 'Etkinlik bulunamadı');
-            return res.redirect('/etkinlikler');
-        }
-
-        res.render('etkinlik_detay', {
-            title: etkinlik.baslik,
-            user: req.session.user,
-            etkinlik: etkinlik
-        });
-    } catch (error) {
-        req.flash('error', 'Etkinlik yüklenirken bir hata oluştu');
         res.redirect('/etkinlikler');
     }
 });

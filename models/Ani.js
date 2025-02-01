@@ -3,11 +3,15 @@ const mongoose = require('mongoose');
 const aniSchema = new mongoose.Schema({
     baslik: {
         type: String,
-        required: true
+        required: [true, 'Başlık alanı zorunludur']
     },
     icerik: {
         type: String,
-        required: true
+        required: [true, 'İçerik alanı zorunludur']
+    },
+    gorsel: {
+        type: String,
+        required: false
     },
     paylasanKullanici: {
         type: mongoose.Schema.Types.ObjectId,
@@ -43,6 +47,8 @@ const aniSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Ani', aniSchema); 

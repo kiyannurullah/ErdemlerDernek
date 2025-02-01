@@ -31,7 +31,8 @@ app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.messages = {
         success: req.flash('success'),
-        error: req.flash('error')
+        error: req.flash('error'),
+        warning: req.flash('warning')
     };
     next();
 });
@@ -67,9 +68,12 @@ const aniRouter = require('./routes/ani');
 const etkinlikRoutes = require('./routes/etkinlik');
 const duyuruRoutes = require('./routes/duyuru');
 const adminRouter = require('./routes/admin');
+const indexRouter = require('./routes/index');
 
+// Route tanımlamaları
+app.use('/', indexRouter);
 app.use('/', authRoutes);
-app.use('/', aniRouter);
+app.use('/anilar', aniRouter);
 app.use('/etkinlikler', etkinlikRoutes);
 app.use('/duyurular', duyuruRoutes);
 app.use('/admin', adminRouter);

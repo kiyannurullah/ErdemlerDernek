@@ -1,10 +1,14 @@
+<%- contentFor('body') %>
+
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Anı Düzenle</h2>
+                </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="card-title">Anı Düzenle</h2>
                         <div>
                             <a href="/anilar/admin/liste" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Listeye Dön
@@ -23,59 +27,93 @@
                         </div>
                     <% } %>
 
-                    <form action="/anilar/admin/duzenle/<%= ani._id %>" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <form action="/anilar/admin/duzenle/<%= ani._id %>" method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="baslik" class="form-label">Başlık</label>
                             <input type="text" class="form-control" id="baslik" name="baslik" value="<%= ani.baslik %>" required>
-                            <div class="invalid-feedback">
-                                Lütfen bir başlık girin.
-                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="icerik" class="form-label">İçerik</label>
                             <textarea class="form-control" id="icerik" name="icerik" rows="6" required><%= ani.icerik %></textarea>
-                            <div class="invalid-feedback">
-                                Lütfen anı içeriğini girin.
+                        </div>
+
+                        <% if (ani.gorsel) { %>
+                            <div class="mb-3">
+                                <label class="form-label">Mevcut Görsel</label>
+                                <div>
+                                    <img src="<%= ani.gorsel %>" class="img-fluid rounded mb-2" style="max-height: 200px;" alt="<%= ani.baslik %>">
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <div class="mb-3">
+                            <label for="gorsel" class="form-label">Yeni Görsel (İsteğe Bağlı)</label>
+                            <input type="file" class="form-control" id="gorsel" name="gorsel" accept="image/*">
+                            <small class="text-muted">Yeni görsel yüklerseniz mevcut görsel değiştirilecektir.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Görünürlük Ayarları</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gorunurlukTipi" id="herkese_acik" 
+                                    value="herkese_acik" <%= ani.gorunurlukTipi === 'herkese_acik' ? 'checked' : '' %> 
+                                    onchange="gorunurlukDegisti(this.value)">
+                                <label class="form-check-label" for="herkese_acik">
+                                    Tüm üyelere açık
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gorunurlukTipi" id="secili_gruplar" 
+                                    value="secili_gruplar" <%= ani.gorunurlukTipi === 'secili_gruplar' ? 'checked' : '' %>
+                                    onchange="gorunurlukDegisti(this.value)">
+                                <label class="form-check-label" for="secili_gruplar">
+                                    Seçili gruplara açık
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gorunurlukTipi" id="secili_kullanicilar" 
+                                    value="secili_kullanicilar" <%= ani.gorunurlukTipi === 'secili_kullanicilar' ? 'checked' : '' %>
+                                    onchange="gorunurlukDegisti(this.value)">
+                                <label class="form-check-label" for="secili_kullanicilar">
+                                    Seçili kullanıcılara açık
+                                </label>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="onayDurumu" class="form-label">Durum</label>
-                            <select class="form-select" id="onayDurumu" name="onayDurumu">
-                                <option value="beklemede" <%= ani.onayDurumu === 'beklemede' ? 'selected' : '' %>>Beklemede</option>
-                                <option value="onaylandi" <%= ani.onayDurumu === 'onaylandi' ? 'selected' : '' %>>Onaylandı</option>
-                                <option value="reddedildi" <%= ani.onayDurumu === 'reddedildi' ? 'selected' : '' %>>Reddedildi</option>
+                        <div id="grupSecimi" class="mb-3" style="display: <%= ani.gorunurlukTipi === 'secili_gruplar' ? 'block' : 'none' %>;">
+                            <label for="izinVerilenGruplar" class="form-label">Görüntüleyebilecek Gruplar</label>
+                            <select class="form-select" id="izinVerilenGruplar" name="izinVerilenGruplar" multiple>
+                                <% gruplar.forEach(grup => { %>
+                                    <option value="<%= grup._id %>" 
+                                        <%= ani.izinVerilenGruplar && ani.izinVerilenGruplar.includes(grup._id) ? 'selected' : '' %>>
+                                        <%= grup.isim %> (<%= grup.uyeler.length %> üye)
+                                    </option>
+                                <% }); %>
                             </select>
+                            <small class="text-muted">Birden fazla grup seçmek için CTRL tuşuna basılı tutarak seçim yapın.</small>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Mevcut Görsel</label>
-                            <% if (ani.gorsel) { %>
-                                <div class="mb-2">
-                                    <img src="<%= ani.gorsel %>" alt="Mevcut görsel" class="img-thumbnail" style="max-height: 200px;">
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="gorselSil" name="gorselSil">
-                                    <label class="form-check-label" for="gorselSil">
-                                        Mevcut görseli kaldır
-                                    </label>
-                                </div>
-                            <% } else { %>
-                                <p class="text-muted">Görsel yok</p>
-                            <% } %>
+                        <div id="kullaniciSecimi" class="mb-3" style="display: <%= ani.gorunurlukTipi === 'secili_kullanicilar' ? 'block' : 'none' %>;">
+                            <label for="izinVerilenKullanicilar" class="form-label">Görüntüleyebilecek Kullanıcılar</label>
+                            <select class="form-select" id="izinVerilenKullanicilar" name="izinVerilenKullanicilar" multiple>
+                                <% kullanicilar.forEach(kullanici => { %>
+                                    <option value="<%= kullanici._id %>"
+                                        <%= ani.izinVerilenKullanicilar && ani.izinVerilenKullanicilar.includes(kullanici._id) ? 'selected' : '' %>>
+                                        <%= kullanici.isim %> <%= kullanici.soyisim %> (<%= kullanici.email %>)
+                                    </option>
+                                <% }); %>
+                            </select>
+                            <small class="text-muted">Birden fazla kullanıcı seçmek için CTRL tuşuna basılı tutarak seçim yapın.</small>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="gorsel" class="form-label">Yeni Görsel Yükle (İsteğe bağlı)</label>
-                            <input type="file" class="form-control" id="gorsel" name="gorsel" accept="image/*">
-                            <div class="form-text">Sadece resim dosyaları (jpg, jpeg, png) yüklenebilir.</div>
-                        </div>
-
-                        <div class="text-center mt-4">
+                        <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Değişiklikleri Kaydet
                             </button>
+                            <a href="/anilar/admin/liste" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Anı Listesine Dön
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -85,19 +123,17 @@
 </div>
 
 <script>
-// Form doğrulama için Bootstrap validation
-(function () {
-    'use strict'
-    var forms = document.querySelectorAll('.needs-validation')
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
-})()
+function gorunurlukDegisti(tip) {
+    const grupSecimi = document.getElementById('grupSecimi');
+    const kullaniciSecimi = document.getElementById('kullaniciSecimi');
+    
+    grupSecimi.style.display = 'none';
+    kullaniciSecimi.style.display = 'none';
+    
+    if (tip === 'secili_gruplar') {
+        grupSecimi.style.display = 'block';
+    } else if (tip === 'secili_kullanicilar') {
+        kullaniciSecimi.style.display = 'block';
+    }
+}
 </script> 

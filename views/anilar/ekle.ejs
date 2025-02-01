@@ -1,10 +1,13 @@
+<%- contentFor('body') %>
+
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Yeni Anı Ekle</h2>
+                </div>
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Yeni Anı Ekle</h2>
-
                     <% if (messages.success && messages.success.length > 0) { %>
                         <div class="alert alert-success">
                             <%= messages.success %>
@@ -16,41 +19,34 @@
                         </div>
                     <% } %>
 
-                    <form action="/anilar/ekle" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <form action="/anilar/ekle" method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="baslik" class="form-label">Başlık</label>
                             <input type="text" class="form-control" id="baslik" name="baslik" required>
-                            <div class="invalid-feedback">
-                                Başlık alanı zorunludur
-                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="icerik" class="form-label">İçerik</label>
                             <textarea class="form-control" id="icerik" name="icerik" rows="6" required></textarea>
-                            <div class="invalid-feedback">
-                                İçerik alanı zorunludur
-                            </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="gorsel" class="form-label">Görsel (İsteğe bağlı)</label>
+                            <label for="gorsel" class="form-label">Görsel (İsteğe Bağlı)</label>
                             <input type="file" class="form-control" id="gorsel" name="gorsel" accept="image/*">
-                            <div class="form-text">
-                                Sadece resim dosyaları (jpg, jpeg, png) yüklenebilir.
-                            </div>
+                            <small class="text-muted">Sadece resim dosyaları (jpg, jpeg, png) yüklenebilir.</small>
                         </div>
 
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Anınız admin onayından sonra yayınlanacaktır.
+                            <i class="fas fa-info-circle"></i> 
+                            Anınız, yönetici onayından sonra yayınlanacaktır.
                         </div>
 
-                        <div class="text-center mt-4">
+                        <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Anıyı Kaydet
                             </button>
                             <a href="/anilar" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Geri Dön
+                                <i class="fas fa-arrow-left"></i> Anılar Sayfasına Dön
                             </a>
                         </div>
                     </form>

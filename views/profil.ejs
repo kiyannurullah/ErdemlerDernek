@@ -1,7 +1,9 @@
+<%- contentFor('body') %>
+
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-4">
-            <div class="card shadow">
+            <div class="card shadow mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Profil Bilgileri</h5>
                     <hr>
@@ -45,6 +47,38 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Aidat Durumu Kartı -->
+            <% if (kullanici.rol === 'admin' || kullanici.rol === 'aktif_uye') { %>
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-money-bill-wave text-warning me-2"></i>
+                        Aidat Durumu
+                    </h5>
+                    <hr>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>Toplam Borç:</strong>
+                            <span class="text-danger fw-bold"><%= borcToplam ? borcToplam.toLocaleString('tr-TR') : '0' %> ₺</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>Son Ödeme:</strong>
+                            <span><%= sonOdeme ? new Date(sonOdeme).toLocaleDateString('tr-TR') : '-' %></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>Aylık Aidat:</strong>
+                            <span class="text-info"><%= aylikAidat ? aylikAidat.toLocaleString('tr-TR') : '0' %> ₺</span>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <a href="/aidat-durumu" class="btn btn-warning">
+                            <i class="fas fa-list"></i> Detaylı Görüntüle
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <% } %>
         </div>
 
         <div class="col-md-8">

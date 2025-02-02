@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const Aidat = require('../models/Aidat');
+const mongoose = require('mongoose');
 
 // Middleware - Admin kontrolü
 const adminKontrol = (req, res, next) => {
@@ -27,12 +29,57 @@ const girisKontrol = (req, res, next) => {
 router.get('/profil', girisKontrol, async (req, res) => {
     try {
         const kullanici = await User.findById(req.session.user.id);
+        let borcToplam = 0;
+        let sonOdeme = null;
+        let aylikAidat = 0;
+
+        if (kullanici.rol === 'admin' || kullanici.rol === 'aktif_uye') {
+            // Toplam borç hesaplama
+            const borcSonuc = await Aidat.find({
+                uye: new mongoose.Types.ObjectId(req.session.user.id),
+                durum: 'Ödenmedi'
+            });
+
+            if (borcSonuc && borcSonuc.length > 0) {
+                borcToplam = borcSonuc.reduce((toplam, aidat) => toplam + aidat.tutar, 0);
+            }
+
+            // Son ödeme bilgisi
+            const sonOdenenAidat = await Aidat.findOne({
+                uye: new mongoose.Types.ObjectId(req.session.user.id),
+                durum: 'Ödendi'
+            }).sort('-odemeTarihi');
+
+            if (sonOdenenAidat && sonOdenenAidat.odemeTarihi) {
+                sonOdeme = sonOdenenAidat.odemeTarihi;
+            }
+
+            // En son eklenen aidatın tutarını bul
+            const enSonAidat = await Aidat.findOne({
+                uye: new mongoose.Types.ObjectId(req.session.user.id)
+            }).sort('-yil -ay');
+
+            if (enSonAidat) {
+                aylikAidat = enSonAidat.tutar;
+            }
+        }
+
+        console.log('Aidat Bilgileri:', {
+            borcToplam,
+            sonOdeme: sonOdeme ? sonOdeme.toLocaleDateString('tr-TR') : '-',
+            aylikAidat
+        });
+
         res.render('profil', {
             title: 'Profilim',
             user: req.session.user,
-            kullanici: kullanici
+            kullanici,
+            borcToplam,
+            sonOdeme,
+            aylikAidat
         });
     } catch (error) {
+        console.error('Profil bilgileri yüklenirken hata:', error);
         req.flash('error', 'Profil bilgileri yüklenirken bir hata oluştu');
         res.redirect('/');
     }

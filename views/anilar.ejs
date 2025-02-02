@@ -1,0 +1,129 @@
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-book fa-2x text-primary me-3"></i>
+                    <h2 class="mb-0">Anılarım</h2>
+                </div>
+                <a href="/anilar/ekle" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-plus me-2"></i>Yeni Anı Ekle
+                </a>
+            </div>
+
+            <% if (messages.success && messages.success.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= messages.success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+            <% if (messages.error && messages.error.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= messages.error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (anilar && anilar.length > 0) { %>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <% anilar.forEach(function(ani) { %>
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0 rounded-4 hover-shadow">
+                                <% if (ani.gorsel && ani.gorsel.startsWith('/uploads/')) { %>
+                                    <img src="<%= ani.gorsel %>" class="card-img-top rounded-top-4" alt="<%= ani.baslik %>" style="height: 200px; object-fit: cover;">
+                                <% } else { %>
+                                    <img src="/img/hero-bg.jpg" class="card-img-top rounded-top-4" alt="<%= ani.baslik %>" style="height: 200px; object-fit: cover;">
+                                <% } %>
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <% if (ani.durum === 'onaylandi') { %>
+                                            <span class="badge bg-success me-2">Onaylandı</span>
+                                        <% } else if (ani.durum === 'beklemede') { %>
+                                            <span class="badge bg-warning text-dark me-2">Onay Bekliyor</span>
+                                        <% } else if (ani.durum === 'reddedildi') { %>
+                                            <span class="badge bg-danger me-2">Reddedildi</span>
+                                        <% } %>
+                                        <small class="text-muted">
+                                            <i class="far fa-clock me-1"></i>
+                                            <%= new Date(ani.olusturmaTarihi).toLocaleDateString('tr-TR') %>
+                                        </small>
+                                    </div>
+                                    <h5 class="card-title mb-3"><%= ani.baslik %></h5>
+                                    <p class="card-text text-muted mb-4" style="height: 4.5em; overflow: hidden;">
+                                        <%= ani.icerik %>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="/anilar/<%= ani._id %>" class="btn btn-primary rounded-pill px-4">
+                                            Devamını Oku <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                        <div class="btn-group">
+                                            <a href="/anilar/duzenle/<%= ani._id %>" class="btn btn-outline-primary btn-sm rounded-circle me-2" title="Düzenle">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button onclick="aniSil('<%= ani._id %>')" class="btn btn-outline-danger btn-sm rounded-circle" title="Sil">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-book fa-4x text-muted"></i>
+                    </div>
+                    <h4>Henüz anı eklenmemiş</h4>
+                    <p class="text-muted">İlk anınızı eklemek için "Yeni Anı Ekle" butonuna tıklayın.</p>
+                    <a href="/anilar/ekle" class="btn btn-primary rounded-pill px-4 mt-3">
+                        <i class="fas fa-plus me-2"></i>Yeni Anı Ekle
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+.card-img-top {
+    transition: all 0.3s ease;
+}
+.card:hover .card-img-top {
+    filter: brightness(1.1);
+}
+.btn-group .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
+<script>
+function aniSil(id) {
+    if (confirm('Bu anıyı silmek istediğinize emin misiniz?')) {
+        fetch(`/anilar/${id}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Bir hata oluştu!');
+                }
+            });
+    }
+}
+</script> 

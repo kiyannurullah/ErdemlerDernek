@@ -1,0 +1,198 @@
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-0 text-success">
+                            <i class="fas fa-money-bill-wave me-2"></i>Aidat Yönetimi
+                        </h1>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#yeniAidatModal">
+                            <i class="fas fa-plus me-2"></i>Yeni Aidat Ekle
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Üye Seçimi -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Üye Seçin</label>
+                                <select class="form-select" id="uyeSecim">
+                                    <option value="">Tüm Üyeler</option>
+                                    <% uyeler.forEach(function(uye) { %>
+                                        <option value="<%= uye._id %>"><%= uye.isim %> <%= uye.soyisim %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Yıl Seçin</label>
+                                <select class="form-select" id="yilSecim">
+                                    <option value="">Tüm Yıllar</option>
+                                    <% for(let i = new Date().getFullYear(); i >= 2020; i--) { %>
+                                        <option value="<%= i %>"><%= i %></option>
+                                    <% } %>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aidat Listesi -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Üye</th>
+                                    <th>Dönem</th>
+                                    <th>Tutar</th>
+                                    <th>Durum</th>
+                                    <th>Ödeme Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% aidatlar.forEach(function(aidat) { %>
+                                    <tr>
+                                        <td><%= aidat.uye.isim %> <%= aidat.uye.soyisim %></td>
+                                        <td><%= aidat.ay %>/<%= aidat.yil %></td>
+                                        <td><%= aidat.tutar %> ₺</td>
+                                        <td>
+                                            <% if (aidat.durum === 'Ödendi') { %>
+                                                <span class="badge bg-success">Ödendi</span>
+                                            <% } else { %>
+                                                <span class="badge bg-danger">Ödenmedi</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (aidat.odemeTarihi) { %>
+                                                <%= aidat.odemeTarihi.toLocaleDateString('tr-TR') %>
+                                            <% } else { %>
+                                                -
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <% if (aidat.durum === 'Ödenmedi') { %>
+                                                    <button class="btn btn-sm btn-success me-2" onclick="aidatOde('<%= aidat._id %>')">
+                                                        <i class="fas fa-check me-1"></i>Öde
+                                                    </button>
+                                                <% } %>
+                                                <button class="btn btn-sm btn-danger" onclick="aidatSil('<%= aidat._id %>')">
+                                                    <i class="fas fa-trash me-1"></i>Sil
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Yeni Aidat Ekleme Modal -->
+<div class="modal fade" id="yeniAidatModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Aidat Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/admin/aidat/ekle" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Üye</label>
+                        <select name="uye" class="form-select" required>
+                            <option value="">Üye Seçin</option>
+                            <% uyeler.forEach(function(uye) { %>
+                                <option value="<%= uye._id %>"><%= uye.isim %> <%= uye.soyisim %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Yıl</label>
+                            <select name="yil" class="form-select" required>
+                                <% for(let i = new Date().getFullYear(); i >= 2020; i--) { %>
+                                    <option value="<%= i %>"><%= i %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Ay</label>
+                            <select name="ay" class="form-select" required>
+                                <% for(let i = 1; i <= 12; i++) { %>
+                                    <option value="<%= i %>"><%= i %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tutar (₺)</label>
+                        <input type="number" name="tutar" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama</label>
+                        <textarea name="aciklama" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-success">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function aidatOde(id) {
+    if(confirm('Bu aidatı ödendi olarak işaretlemek istediğinize emin misiniz?')) {
+        fetch(`/admin/aidat/${id}/ode`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    location.reload();
+                } else {
+                    alert('Bir hata oluştu!');
+                }
+            });
+    }
+}
+
+function aidatSil(id) {
+    if(confirm('Bu aidatı silmek istediğinize emin misiniz?')) {
+        fetch(`/admin/aidat/${id}/sil`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    location.reload();
+                } else {
+                    alert('Bir hata oluştu!');
+                }
+            });
+    }
+}
+
+document.getElementById('uyeSecim').addEventListener('change', function() {
+    filterTable();
+});
+
+document.getElementById('yilSecim').addEventListener('change', function() {
+    filterTable();
+});
+
+function filterTable() {
+    const uyeId = document.getElementById('uyeSecim').value;
+    const yil = document.getElementById('yilSecim').value;
+    
+    window.location.href = `/admin/aidat?uye=${uyeId}&yil=${yil}`;
+}
+</script> 

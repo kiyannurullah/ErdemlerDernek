@@ -1,0 +1,99 @@
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-0 text-success">
+                            <i class="fas fa-money-bill-wave me-2"></i>Aidat Durumu
+                        </h1>
+                        <div class="d-flex align-items-center">
+                            <select class="form-select me-2" id="yilSecim">
+                                <option value="">Tüm Yıllar</option>
+                                <% for(let i = new Date().getFullYear(); i >= 2020; i--) { %>
+                                    <option value="<%= i %>" <%= yil == i ? 'selected' : '' %>><%= i %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Özet Bilgiler -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-success bg-opacity-10 border-0">
+                                <div class="card-body">
+                                    <h6 class="text-success mb-2">Toplam Ödenen</h6>
+                                    <h3 class="mb-0"><%= odenenToplam %> ₺</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-danger bg-opacity-10 border-0">
+                                <div class="card-body">
+                                    <h6 class="text-danger mb-2">Toplam Borç</h6>
+                                    <h3 class="mb-0"><%= borcToplam %> ₺</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info bg-opacity-10 border-0">
+                                <div class="card-body">
+                                    <h6 class="text-info mb-2">Aylık Aidat</h6>
+                                    <h3 class="mb-0"><%= aylikAidat %> ₺</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aidat Listesi -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Dönem</th>
+                                    <th>Tutar</th>
+                                    <th>Durum</th>
+                                    <th>Ödeme Tarihi</th>
+                                    <th>Açıklama</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% aidatlar.forEach(function(aidat) { %>
+                                    <tr>
+                                        <td><%= aidat.ay %>/<%= aidat.yil %></td>
+                                        <td><%= aidat.tutar %> ₺</td>
+                                        <td>
+                                            <% if (aidat.durum === 'Ödendi') { %>
+                                                <span class="badge bg-success">Ödendi</span>
+                                            <% } else { %>
+                                                <span class="badge bg-danger">Ödenmedi</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (aidat.odemeTarihi) { %>
+                                                <%= aidat.odemeTarihi.toLocaleDateString('tr-TR') %>
+                                            <% } else { %>
+                                                -
+                                            <% } %>
+                                        </td>
+                                        <td><%= aidat.aciklama || '-' %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('yilSecim').addEventListener('change', function() {
+    const yil = this.value;
+    window.location.href = `/aidat-durumu?yil=${yil}`;
+});
+</script> 

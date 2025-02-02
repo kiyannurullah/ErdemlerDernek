@@ -4,16 +4,7 @@ const Duyuru = require('../models/Duyuru');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-
-// Middleware - Admin kontrolü
-const adminKontrol = (req, res, next) => {
-    if (req.session.user && req.session.user.rol === 'admin') {
-        next();
-    } else {
-        req.flash('error', 'Bu sayfaya erişim yetkiniz yok');
-        res.redirect('/');
-    }
-};
+const adminKontrol = require('../middleware/adminKontrol');
 
 // Görsel yükleme ayarları
 const storage = multer.diskStorage({
@@ -44,69 +35,68 @@ const upload = multer({
     }
 });
 
-// Duyuru Listesi
-router.get('/', async (req, res) => {
-    try {
-        const duyurular = await Duyuru.find({ durum: 'aktif' })
-            .populate('olusturanId', 'isim soyisim');
-        res.render('duyurular', {
-            title: 'Duyurular',
-            user: req.session.user,
-            duyurular: duyurular
-        });
-    } catch (error) {
-        req.flash('error', 'Duyurular yüklenirken bir hata oluştu');
-        res.redirect('/');
-    }
-});
-
 // Admin - Duyuru Listesi
 router.get('/admin/liste', adminKontrol, async (req, res) => {
     try {
         const duyurular = await Duyuru.find()
-            .populate('olusturanId', 'isim soyisim');
+            .populate('ekleyenAdmin', 'isim soyisim')
+            .sort({ createdAt: -1 });
+
         res.render('admin/duyuru_liste', {
             title: 'Duyuru Yönetimi',
             user: req.session.user,
             duyurular: duyurular
         });
     } catch (error) {
+        console.error('Duyuru listesi hatası:', error);
         req.flash('error', 'Duyurular yüklenirken bir hata oluştu');
-        res.redirect('/admin');
+        res.redirect('/duyurular');
     }
 });
 
 // Admin - Duyuru Ekleme Sayfası
 router.get('/admin/ekle', adminKontrol, (req, res) => {
-    res.render('admin/duyuru_ekle', {
-        title: 'Yeni Duyuru Ekle',
-        user: req.session.user
-    });
+    try {
+        res.render('admin/duyuru_ekle', {
+            title: 'Yeni Duyuru Ekle',
+            user: req.session.user
+        });
+    } catch (error) {
+        console.error('Duyuru ekleme sayfası hatası:', error);
+        req.flash('error', 'Sayfa yüklenirken bir hata oluştu');
+        res.redirect('/duyurular/admin/liste');
+    }
 });
 
 // Admin - Duyuru Ekleme İşlemi
-router.post('/admin/ekle', adminKontrol, upload.single('gorsel'), async (req, res) => {
+router.post('/admin/ekle', adminKontrol, async (req, res) => {
     try {
-        const duyuru = new Duyuru({
-            baslik: req.body.baslik,
-            icerik: req.body.icerik,
-            durum: req.body.durum,
-            onemDurumu: req.body.onemDurumu,
-            olusturanId: req.session.user._id
-        });
+        console.log('Duyuru ekleme isteği:', req.body);
+        console.log('Session kullanıcısı:', req.session.user);
 
-        if (req.file) {
-            duyuru.gorsel = '/uploads/duyurular/' + req.file.filename;
+        if (!req.session.user || !req.session.user.id) {
+            console.error('Kullanıcı ID bulunamadı');
+            req.flash('error', 'Oturum bilgilerinizde bir sorun var. Lütfen tekrar giriş yapın.');
+            return res.redirect('/giris');
         }
 
-        await duyuru.save();
+        const { baslik, icerik } = req.body;
+
+        const duyuru = new Duyuru({
+            baslik: baslik.trim(),
+            icerik: icerik.trim(),
+            ekleyenAdmin: req.session.user.id
+        });
+
+        const kaydedilenDuyuru = await duyuru.save();
+        console.log('Kaydedilen duyuru:', kaydedilenDuyuru);
+
         req.flash('success', 'Duyuru başarıyla eklendi');
         res.redirect('/duyurular/admin/liste');
     } catch (error) {
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
-        req.flash('error', 'Duyuru eklenirken bir hata oluştu');
+        console.error('Duyuru ekleme hatası:', error);
+        console.error('Session bilgisi:', req.session.user);
+        req.flash('error', 'Duyuru eklenirken bir hata oluştu: ' + error.message);
         res.redirect('/duyurular/admin/ekle');
     }
 });
@@ -125,13 +115,14 @@ router.get('/admin/duzenle/:id', adminKontrol, async (req, res) => {
             duyuru: duyuru
         });
     } catch (error) {
+        console.error('Duyuru düzenleme sayfası hatası:', error);
         req.flash('error', 'Duyuru yüklenirken bir hata oluştu');
         res.redirect('/duyurular/admin/liste');
     }
 });
 
 // Admin - Duyuru Düzenleme İşlemi
-router.post('/admin/duzenle/:id', adminKontrol, upload.single('gorsel'), async (req, res) => {
+router.post('/admin/duzenle/:id', adminKontrol, async (req, res) => {
     try {
         const duyuru = await Duyuru.findById(req.params.id);
         if (!duyuru) {
@@ -139,36 +130,14 @@ router.post('/admin/duzenle/:id', adminKontrol, upload.single('gorsel'), async (
             return res.redirect('/duyurular/admin/liste');
         }
 
-        duyuru.baslik = req.body.baslik;
-        duyuru.icerik = req.body.icerik;
-        duyuru.durum = req.body.durum;
-        duyuru.onemDurumu = req.body.onemDurumu;
-
-        if (req.body.gorselSil === 'on' && duyuru.gorsel) {
-            const eskiGorselYolu = path.join(__dirname, '../public', duyuru.gorsel);
-            if (fs.existsSync(eskiGorselYolu)) {
-                fs.unlinkSync(eskiGorselYolu);
-            }
-            duyuru.gorsel = undefined;
-        }
-
-        if (req.file) {
-            if (duyuru.gorsel) {
-                const eskiGorselYolu = path.join(__dirname, '../public', duyuru.gorsel);
-                if (fs.existsSync(eskiGorselYolu)) {
-                    fs.unlinkSync(eskiGorselYolu);
-                }
-            }
-            duyuru.gorsel = '/uploads/duyurular/' + req.file.filename;
-        }
+        duyuru.baslik = req.body.baslik.trim();
+        duyuru.icerik = req.body.icerik.trim();
 
         await duyuru.save();
         req.flash('success', 'Duyuru başarıyla güncellendi');
         res.redirect('/duyurular/admin/liste');
     } catch (error) {
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
+        console.error('Duyuru güncelleme hatası:', error);
         req.flash('error', 'Duyuru güncellenirken bir hata oluştu');
         res.redirect('/duyurular/admin/duzenle/' + req.params.id);
     }
@@ -183,39 +152,53 @@ router.post('/admin/sil/:id', adminKontrol, async (req, res) => {
             return res.redirect('/duyurular/admin/liste');
         }
 
-        if (duyuru.gorsel) {
-            const gorselYolu = path.join(__dirname, '../public', duyuru.gorsel);
-            if (fs.existsSync(gorselYolu)) {
-                fs.unlinkSync(gorselYolu);
-            }
-        }
-
         await duyuru.deleteOne();
         req.flash('success', 'Duyuru başarıyla silindi');
         res.redirect('/duyurular/admin/liste');
     } catch (error) {
+        console.error('Duyuru silme hatası:', error);
         req.flash('error', 'Duyuru silinirken bir hata oluştu');
         res.redirect('/duyurular/admin/liste');
     }
 });
 
-// Duyuru Detay Sayfası
+// Tüm Duyurular Sayfası (Herkes erişebilir)
+router.get('/', async (req, res) => {
+    try {
+        const duyurular = await Duyuru.find()
+            .populate('ekleyenAdmin', 'isim soyisim')
+            .sort({ createdAt: -1 });
+
+        res.render('duyurular/liste', {
+            title: 'Duyurular',
+            user: req.session.user,
+            duyurular: duyurular
+        });
+    } catch (error) {
+        console.error('Duyuru listesi hatası:', error);
+        req.flash('error', 'Duyurular yüklenirken bir hata oluştu');
+        res.redirect('/');
+    }
+});
+
+// Duyuru Detay Sayfası (Herkes erişebilir)
 router.get('/:id', async (req, res) => {
     try {
         const duyuru = await Duyuru.findById(req.params.id)
-            .populate('olusturanId', 'isim soyisim');
-        
-        if (!duyuru || duyuru.durum !== 'aktif') {
+            .populate('ekleyenAdmin', 'isim soyisim');
+
+        if (!duyuru) {
             req.flash('error', 'Duyuru bulunamadı');
             return res.redirect('/duyurular');
         }
 
-        res.render('duyuru_detay', {
+        res.render('duyurular/detay', {
             title: duyuru.baslik,
             user: req.session.user,
             duyuru: duyuru
         });
     } catch (error) {
+        console.error('Duyuru detay hatası:', error);
         req.flash('error', 'Duyuru yüklenirken bir hata oluştu');
         res.redirect('/duyurular');
     }

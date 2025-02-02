@@ -1,3 +1,5 @@
+<%- contentFor('body') %>
+
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
@@ -35,10 +37,108 @@
     </div>
 
     <div class="row mt-4">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Yaklaşan Etkinlikler</h5>
+                    <a href="/etkinlikler" class="btn btn-outline-primary btn-sm">Tümünü Gör</a>
+                </div>
+                <div class="card-body py-2">
+                    <% if (sonEtkinlikler && sonEtkinlikler.length > 0) { %>
+                        <div class="row g-2">
+                            <% sonEtkinlikler.forEach(function(etkinlik) { %>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center p-2 border rounded">
+                                        <% if (etkinlik.gorsel) { %>
+                                            <img src="<%= etkinlik.gorsel %>" 
+                                                 class="rounded-circle me-3" 
+                                                 alt="<%= etkinlik.baslik %>" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                        <% } %>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0"><%= etkinlik.baslik %></h6>
+                                            <div class="text-muted small">
+                                                <i class="fas fa-calendar-alt"></i> 
+                                                <%= new Date(etkinlik.tarih).toLocaleString('tr-TR', {
+                                                    dateStyle: 'medium',
+                                                    timeStyle: 'short'
+                                                }) %>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <i class="fas fa-map-marker-alt"></i> <%= etkinlik.konum %>
+                                            </div>
+                                        </div>
+                                        <a href="/etkinlikler/<%= etkinlik._id %>" class="btn btn-outline-primary btn-sm ms-2">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-3">
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-calendar-times me-2"></i>
+                                Yakında yeni etkinlikler eklenecektir.
+                            </p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Son Duyurular</h5>
+                    <a href="/duyurular" class="btn btn-outline-primary btn-sm">Tümünü Gör</a>
+                </div>
+                <div class="card-body py-2">
+                    <% if (sonDuyurular && sonDuyurular.length > 0) { %>
+                        <div class="row g-2">
+                            <% sonDuyurular.forEach(function(duyuru) { %>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center p-2 border rounded">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0"><%= duyuru.baslik %></h6>
+                                            <div class="text-muted small">
+                                                <i class="fas fa-clock"></i> 
+                                                <%= new Date(duyuru.createdAt).toLocaleString('tr-TR', {
+                                                    dateStyle: 'medium',
+                                                    timeStyle: 'short'
+                                                }) %>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <i class="fas fa-user"></i> 
+                                                <%= duyuru.ekleyenAdmin ? `${duyuru.ekleyenAdmin.isim} ${duyuru.ekleyenAdmin.soyisim}` : 'Admin' %>
+                                            </div>
+                                        </div>
+                                        <a href="/duyurular/<%= duyuru._id %>" class="btn btn-outline-primary btn-sm ms-2">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-3">
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-bullhorn me-2"></i>
+                                Henüz duyuru bulunmuyor.
+                            </p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Anılar</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Anılar</h5>
                     <p class="card-text">Dernek üyelerimizin paylaştığı değerli anıları okuyabilir ve kendi anılarınızı paylaşabilirsiniz.</p>
                     <% if (user && (user.rol === 'aktif_uye' || user.rol === 'admin')) { %>
                         <a href="/anilar" class="btn btn-primary">
@@ -53,28 +153,6 @@
                             <i class="fas fa-sign-in-alt"></i> Giriş Yapın
                         </a>
                     <% } %>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Etkinlikler</h5>
-                    <p class="card-text">Derneğimizin düzenlediği etkinlikleri takip edebilir ve katılım sağlayabilirsiniz.</p>
-                    <a href="/etkinlikler" class="btn btn-primary">
-                        <i class="fas fa-calendar-alt"></i> Etkinlikleri Görüntüle
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Duyurular</h5>
-                    <p class="card-text">Derneğimizle ilgili en güncel duyuruları ve haberleri buradan takip edebilirsiniz.</p>
-                    <a href="/duyurular" class="btn btn-primary">
-                        <i class="fas fa-bullhorn"></i> Duyuruları Görüntüle
-                    </a>
                 </div>
             </div>
         </div>

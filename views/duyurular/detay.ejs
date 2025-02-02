@@ -1,0 +1,63 @@
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title mb-4"><%= duyuru.baslik %></h1>
+                    
+                    <div class="d-flex justify-content-between align-items-center text-muted small mb-4">
+                        <div>
+                            <i class="fas fa-user fa-fw"></i>
+                            <%= duyuru.ekleyenAdmin ? `${duyuru.ekleyenAdmin.isim} ${duyuru.ekleyenAdmin.soyisim}` : 'Admin' %>
+                        </div>
+                        <div>
+                            <i class="fas fa-clock fa-fw"></i>
+                            <%= new Date(duyuru.createdAt).toLocaleString('tr-TR', {
+                                dateStyle: 'long',
+                                timeStyle: 'short'
+                            }) %>
+                        </div>
+                    </div>
+
+                    <div class="card-text mb-4" style="white-space: pre-line;">
+                        <%= duyuru.icerik %>
+                    </div>
+
+                    <% if (user && user.rol === 'admin') { %>
+                        <div class="border-top pt-3 mt-4">
+                            <div class="btn-group">
+                                <a href="/duyurular/admin/duzenle/<%= duyuru._id %>" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </a>
+                                <button onclick="duyuruSil('<%= duyuru._id %>')" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Sil
+                                </button>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="card-footer">
+                    <a href="/duyurular" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Duyurular Sayfasına Dön
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% if (user && user.rol === 'admin') { %>
+<script>
+function duyuruSil(duyuruId) {
+    if (confirm('Bu duyuruyu silmek istediğinizden emin misiniz?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/duyurular/admin/sil/${duyuruId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+<% } %> 

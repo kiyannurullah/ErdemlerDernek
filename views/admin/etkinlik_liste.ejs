@@ -1,114 +1,72 @@
+<%- contentFor('body') %>
+
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="card-title">Etkinlik Yönetimi</h2>
-                        <div>
-                            <a href="/admin" class="btn btn-secondary me-2">
-                                <i class="fas fa-arrow-left"></i> Admin Paneli
-                            </a>
-                            <a href="/etkinlikler/admin/ekle" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Yeni Etkinlik
-                            </a>
-                        </div>
-                    </div>
-
-                    <% if (messages.success && messages.success.length > 0) { %>
-                        <div class="alert alert-success">
-                            <%= messages.success %>
-                        </div>
-                    <% } %>
-                    <% if (messages.error && messages.error.length > 0) { %>
-                        <div class="alert alert-danger">
-                            <%= messages.error %>
-                        </div>
-                    <% } %>
-
-                    <% if (etkinlikler && etkinlikler.length > 0) { %>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Görsel</th>
-                                        <th>Başlık</th>
-                                        <th>Tarih</th>
-                                        <th>Saat</th>
-                                        <th>Yer</th>
-                                        <th>Durum</th>
-                                        <th>İşlemler</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% etkinlikler.forEach(function(etkinlik) { %>
-                                        <tr>
-                                            <td>
-                                                <% if (etkinlik.gorsel) { %>
-                                                    <img src="<%= etkinlik.gorsel %>" alt="Etkinlik görseli" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
-                                                <% } %>
-                                            </td>
-                                            <td><%= etkinlik.baslik %></td>
-                                            <td><%= new Date(etkinlik.tarih).toLocaleDateString('tr-TR') %></td>
-                                            <td><%= etkinlik.saat %></td>
-                                            <td><%= etkinlik.yer %></td>
-                                            <td>
-                                                <span class="badge bg-<%= etkinlik.durum === 'aktif' ? 'success' : 'secondary' %>">
-                                                    <%= etkinlik.durum === 'aktif' ? 'Aktif' : 'Pasif' %>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="/etkinlikler/<%= etkinlik._id %>" class="btn btn-info btn-sm" title="Görüntüle">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="/etkinlikler/admin/duzenle/<%= etkinlik._id %>" class="btn btn-warning btn-sm" title="Düzenle">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-danger btn-sm" title="Sil"
-                                                            data-bs-toggle="modal" data-bs-target="#silModal<%= etkinlik._id %>">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-
-                                                <!-- Silme Onay Modalı -->
-                                                <div class="modal fade" id="silModal<%= etkinlik._id %>" tabindex="-1" aria-labelledby="silModalLabel<%= etkinlik._id %>" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="silModalLabel<%= etkinlik._id %>">Etkinlik Sil</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <p><strong><%= etkinlik.baslik %></strong> başlıklı etkinliği silmek istediğinizden emin misiniz?</p>
-                                                                <p class="text-danger"><small>Bu işlem geri alınamaz!</small></p>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                                                                <form action="/etkinlikler/admin/sil/<%= etkinlik._id %>" method="POST" class="d-inline">
-                                                                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <% }); %>
-                                </tbody>
-                            </table>
-                        </div>
-                    <% } else { %>
-                        <div class="text-center py-5">
-                            <div class="mb-4">
-                                <i class="fas fa-calendar-times fa-4x text-muted"></i>
-                            </div>
-                            <h4>Henüz etkinlik bulunmuyor</h4>
-                            <p class="text-muted">Yeni etkinlik eklemek için "Yeni Etkinlik" butonunu kullanabilirsiniz.</p>
-                        </div>
-                    <% } %>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Etkinlik Yönetimi</h2>
+            <a href="/etkinlikler/admin/ekle" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Yeni Etkinlik Ekle
+            </a>
+        </div>
+        <div class="card-body">
+            <% if (etkinlikler.length === 0) { %>
+                <div class="alert alert-info">
+                    Henüz hiç etkinlik eklenmemiş.
                 </div>
-            </div>
+            <% } else { %>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Başlık</th>
+                                <th>Tarih</th>
+                                <th>Konum</th>
+                                <th>Ekleyen</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% etkinlikler.forEach(function(etkinlik) { %>
+                                <tr>
+                                    <td><%= etkinlik.baslik %></td>
+                                    <td><%= new Date(etkinlik.tarih).toLocaleString('tr-TR', { 
+                                        dateStyle: 'medium', 
+                                        timeStyle: 'short' 
+                                    }) %></td>
+                                    <td><%= etkinlik.konum %></td>
+                                    <td><%= etkinlik.ekleyenAdmin ? `${etkinlik.ekleyenAdmin.isim} ${etkinlik.ekleyenAdmin.soyisim}` : 'Bilinmiyor' %></td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/etkinlikler/<%= etkinlik._id %>" class="btn btn-sm btn-info" title="Görüntüle">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/etkinlikler/admin/duzenle/<%= etkinlik._id %>" class="btn btn-sm btn-warning" title="Düzenle">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    onclick="etkinlikSil('<%= etkinlik._id %>')" title="Sil">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
         </div>
     </div>
-</div> 
+</div>
+
+<script>
+function etkinlikSil(etkinlikId) {
+    if (confirm('Bu etkinliği silmek istediğinizden emin misiniz?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/etkinlikler/admin/sil/${etkinlikId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script> 

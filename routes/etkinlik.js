@@ -4,16 +4,7 @@ const Etkinlik = require('../models/Etkinlik');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-
-// Middleware - Admin kontrolü
-const adminKontrol = (req, res, next) => {
-    if (req.session.user && req.session.user.rol === 'admin') {
-        next();
-    } else {
-        req.flash('error', 'Bu sayfaya erişim yetkiniz yok');
-        res.redirect('/');
-    }
-};
+const adminKontrol = require('../middleware/adminKontrol');
 
 // Görsel yükleme ayarları
 const storage = multer.diskStorage({
@@ -43,7 +34,8 @@ const upload = multer({
 router.get('/', async (req, res) => {
     try {
         const etkinlikler = await Etkinlik.find()
-            .sort({ tarih: -1 });
+            .sort({ tarih: 1 }) // Yaklaşan etkinlikler önce
+            .populate('ekleyenAdmin', 'isim soyisim');
 
         res.render('etkinlikler/liste', {
             title: 'Etkinlikler',
@@ -187,6 +179,25 @@ router.post('/admin/sil/:id', adminKontrol, async (req, res) => {
     } catch (error) {
         console.error('Etkinlik silme hatası:', error);
         req.flash('error', 'Etkinlik silinirken bir hata oluştu');
+        res.redirect('/etkinlikler');
+    }
+});
+
+// Admin - Etkinlik Listesi
+router.get('/admin/liste', adminKontrol, async (req, res) => {
+    try {
+        const etkinlikler = await Etkinlik.find()
+            .populate('ekleyenAdmin', 'isim soyisim')
+            .sort({ tarih: -1 });
+
+        res.render('admin/etkinlik_liste', {
+            title: 'Etkinlik Yönetimi',
+            user: req.session.user,
+            etkinlikler: etkinlikler
+        });
+    } catch (error) {
+        console.error('Admin etkinlik listesi hatası:', error);
+        req.flash('error', 'Etkinlikler yüklenirken bir hata oluştu');
         res.redirect('/etkinlikler');
     }
 });

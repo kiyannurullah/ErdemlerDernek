@@ -3,35 +3,16 @@ const mongoose = require('mongoose');
 const duyuruSchema = new mongoose.Schema({
     baslik: {
         type: String,
-        required: [true, 'Başlık zorunludur'],
-        trim: true
+        required: [true, 'Duyuru başlığı zorunludur']
     },
     icerik: {
         type: String,
-        required: [true, 'İçerik zorunludur']
+        required: [true, 'Duyuru içeriği zorunludur']
     },
-    gorsel: {
-        type: String,
-        required: false
-    },
-    durum: {
-        type: String,
-        enum: ['aktif', 'pasif'],
-        default: 'aktif'
-    },
-    onemDurumu: {
-        type: String,
-        enum: ['normal', 'onemli', 'acil'],
-        default: 'normal'
-    },
-    olusturanId: {
+    ekleyenAdmin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    },
-    olusturmaTarihi: {
-        type: Date,
-        default: Date.now
     }
 }, {
     timestamps: true
@@ -39,7 +20,7 @@ const duyuruSchema = new mongoose.Schema({
 
 // Duyuruları tarihe göre sıralama (en yeniden en eskiye)
 duyuruSchema.pre('find', function() {
-    this.sort({ olusturmaTarihi: -1 });
+    this.sort({ createdAt: -1 });
 });
 
 const Duyuru = mongoose.model('Duyuru', duyuruSchema);

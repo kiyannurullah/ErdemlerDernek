@@ -5,6 +5,7 @@ const flash = require('connect-flash');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 const User = require('./models/User');
+const MongoStore = require('connect-mongo');
 require('dotenv').config();
 
 const app = express();
@@ -21,8 +22,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
     secret: 'erdemler-dernegi-gizli-anahtar',
-    resave: true,
-    saveUninitialized: true
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI,
+        ttl: 24 * 60 * 60 // 1 gün
+    }),
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 1 gün
+    }
 }));
 app.use(flash());
 
@@ -73,10 +83,10 @@ const indexRouter = require('./routes/index');
 // Route tanımlamaları
 app.use('/', indexRouter);
 app.use('/', authRoutes);
+app.use('/admin', adminRouter);
 app.use('/anilar', aniRouter);
 app.use('/etkinlikler', etkinlikRoutes);
 app.use('/duyurular', duyuruRoutes);
-app.use('/admin', adminRouter);
 
 // Ana sayfa route'u
 app.get('/', (req, res) => {

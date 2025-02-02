@@ -143,40 +143,34 @@ router.get('/giris', (req, res) => {
 router.post('/giris', async (req, res) => {
     try {
         const { email, sifre } = req.body;
-        const uye = await User.findOne({ email });
 
-        if (!uye) {
+        const user = await User.findOne({ email });
+        if (!user) {
             req.flash('error', 'E-posta veya şifre hatalı');
             return res.redirect('/giris');
         }
 
-        const sifreEslesti = await bcrypt.compare(sifre, uye.sifre);
-        if (!sifreEslesti) {
+        const sifreDogruMu = await bcrypt.compare(sifre, user.sifre);
+        if (!sifreDogruMu) {
             req.flash('error', 'E-posta veya şifre hatalı');
             return res.redirect('/giris');
         }
 
-        if (uye.rol === 'pasif_uye') {
-            req.flash('error', 'Hesabınız pasif durumda. Lütfen yönetici ile iletişime geçin.');
-            return res.redirect('/giris');
-        }
-
+        // Session'a kullanıcı bilgilerini ekle
         req.session.user = {
-            id: uye._id,
-            isim: uye.isim,
-            soyisim: uye.soyisim,
-            email: uye.email,
-            rol: uye.rol
+            id: user._id.toString(), // ID'yi string olarak kaydet
+            email: user.email,
+            isim: user.isim,
+            soyisim: user.soyisim,
+            rol: user.rol
         };
 
-        if (uye.rol === 'beklemede') {
-            req.flash('warning', 'Hesabınız henüz onaylanmamış. Anılar bölümüne erişiminiz onaylandıktan sonra açılacaktır.');
-        } else {
-            req.flash('success', 'Başarıyla giriş yaptınız');
-        }
-        
+        console.log('Giriş yapan kullanıcı:', req.session.user);
+
+        req.flash('success', 'Başarıyla giriş yaptınız');
         res.redirect('/');
     } catch (error) {
+        console.error('Giriş hatası:', error);
         req.flash('error', 'Giriş yapılırken bir hata oluştu');
         res.redirect('/giris');
     }

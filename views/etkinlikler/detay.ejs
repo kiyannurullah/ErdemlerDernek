@@ -1,0 +1,46 @@
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <% if (etkinlik.gorsel) { %>
+                    <img src="<%= etkinlik.gorsel %>" class="card-img-top" alt="<%= etkinlik.baslik %>" style="max-height: 400px; object-fit: cover;">
+                <% } %>
+                <div class="card-body">
+                    <h1 class="card-title mb-4"><%= etkinlik.baslik %></h1>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-4">
+                            <i class="fas fa-calendar fa-fw"></i>
+                            <%= new Date(etkinlik.tarih).toLocaleString('tr-TR', {
+                                dateStyle: 'long',
+                                timeStyle: 'short'
+                            }) %>
+                        </div>
+                        <div>
+                            <i class="fas fa-map-marker-alt fa-fw"></i>
+                            <%= etkinlik.konum %>
+                        </div>
+                    </div>
+
+                    <div class="card-text mb-4" style="white-space: pre-line;">
+                        <%= etkinlik.aciklama %>
+                    </div>
+
+                    <% if (etkinlik.ekleyenAdmin) { %>
+                        <div class="text-muted small">
+                            <i class="fas fa-user fa-fw"></i>
+                            Ekleyen: <%= etkinlik.ekleyenAdmin.isim %> <%= etkinlik.ekleyenAdmin.soyisim %>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="card-footer">
+                    <a href="/etkinlikler" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Etkinlikler Sayfasına Dön
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

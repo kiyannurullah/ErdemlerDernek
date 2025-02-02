@@ -1,0 +1,53 @@
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Etkinlikler</h2>
+                </div>
+                <div class="card-body">
+                    <% if (etkinlikler.length === 0) { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h4>Henüz etkinlik bulunmuyor</h4>
+                            <p class="text-muted">Yakında yeni etkinlikler eklenecektir.</p>
+                        </div>
+                    <% } else { %>
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            <% etkinlikler.forEach(function(etkinlik) { %>
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <% if (etkinlik.gorsel) { %>
+                                            <img src="<%= etkinlik.gorsel %>" class="card-img-top" alt="<%= etkinlik.baslik %>" style="height: 200px; object-fit: cover;">
+                                        <% } %>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= etkinlik.baslik %></h5>
+                                            <p class="card-text text-muted">
+                                                <i class="fas fa-calendar"></i> 
+                                                <%= new Date(etkinlik.tarih).toLocaleString('tr-TR', {
+                                                    dateStyle: 'long',
+                                                    timeStyle: 'short'
+                                                }) %>
+                                            </p>
+                                            <p class="card-text text-muted">
+                                                <i class="fas fa-map-marker-alt"></i> <%= etkinlik.konum %>
+                                            </p>
+                                            <p class="card-text"><%= etkinlik.aciklama.substring(0, 100) %>...</p>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <a href="/etkinlikler/<%= etkinlik._id %>" class="btn btn-primary w-100">
+                                                Detayları Gör
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

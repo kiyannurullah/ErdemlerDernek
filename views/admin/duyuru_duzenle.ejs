@@ -1,121 +1,35 @@
+<%- contentFor('body') %>
+
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Duyuru Düzenle</h2>
+                </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="card-title">Duyuru Düzenle</h2>
-                        <div>
-                            <a href="/duyurular/<%= duyuru._id %>" class="btn btn-info me-2">
-                                <i class="fas fa-eye"></i> Görüntüle
-                            </a>
-                            <a href="/duyurular/admin/liste" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Listeye Dön
-                            </a>
-                        </div>
-                    </div>
-
-                    <% if (messages.success && messages.success.length > 0) { %>
-                        <div class="alert alert-success">
-                            <%= messages.success %>
-                        </div>
-                    <% } %>
-                    <% if (messages.error && messages.error.length > 0) { %>
-                        <div class="alert alert-danger">
-                            <%= messages.error %>
-                        </div>
-                    <% } %>
-
-                    <form action="/duyurular/admin/duzenle/<%= duyuru._id %>" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <form action="/duyurular/admin/duzenle/<%= duyuru._id %>" method="POST">
                         <div class="mb-3">
-                            <label for="baslik" class="form-label">Başlık</label>
+                            <label for="baslik" class="form-label">Duyuru Başlığı</label>
                             <input type="text" class="form-control" id="baslik" name="baslik" value="<%= duyuru.baslik %>" required>
-                            <div class="invalid-feedback">
-                                Lütfen bir başlık girin.
-                            </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="icerik" class="form-label">İçerik</label>
-                            <textarea class="form-control" id="icerik" name="icerik" rows="6" required><%= duyuru.icerik %></textarea>
-                            <div class="invalid-feedback">
-                                Lütfen bir içerik girin.
-                            </div>
+                            <label for="icerik" class="form-label">Duyuru İçeriği</label>
+                            <textarea class="form-control" id="icerik" name="icerik" rows="5" required><%= duyuru.icerik %></textarea>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="onemDurumu" class="form-label">Önem Durumu</label>
-                                    <select class="form-select" id="onemDurumu" name="onemDurumu">
-                                        <option value="normal" <%= duyuru.onemDurumu === 'normal' ? 'selected' : '' %>>Normal</option>
-                                        <option value="onemli" <%= duyuru.onemDurumu === 'onemli' ? 'selected' : '' %>>Önemli</option>
-                                        <option value="acil" <%= duyuru.onemDurumu === 'acil' ? 'selected' : '' %>>Acil</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="durum" class="form-label">Durum</label>
-                                    <select class="form-select" id="durum" name="durum">
-                                        <option value="aktif" <%= duyuru.durum === 'aktif' ? 'selected' : '' %>>Aktif</option>
-                                        <option value="pasif" <%= duyuru.durum === 'pasif' ? 'selected' : '' %>>Pasif</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Mevcut Görsel</label>
-                            <% if (duyuru.gorsel) { %>
-                                <div class="mb-2">
-                                    <img src="<%= duyuru.gorsel %>" alt="Mevcut görsel" class="img-thumbnail" style="max-height: 200px;">
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="gorselSil" name="gorselSil">
-                                    <label class="form-check-label" for="gorselSil">
-                                        Mevcut görseli kaldır
-                                    </label>
-                                </div>
-                            <% } else { %>
-                                <p class="text-muted">Görsel yok</p>
-                            <% } %>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="gorsel" class="form-label">Yeni Görsel Yükle (İsteğe bağlı)</label>
-                            <input type="file" class="form-control" id="gorsel" name="gorsel" accept="image/*">
-                            <div class="form-text">
-                                Desteklenen formatlar: JPG, JPEG, PNG
-                            </div>
-                        </div>
-
-                        <div class="text-center mt-4">
+                        <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Değişiklikleri Kaydet
                             </button>
+                            <a href="/duyurular/admin/liste" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Duyurular Sayfasına Dön
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<script>
-// Form doğrulama için Bootstrap validation
-(function () {
-    'use strict'
-    var forms = document.querySelectorAll('.needs-validation')
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
-})()
-</script> 
+</div> 

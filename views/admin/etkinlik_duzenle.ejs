@@ -40,6 +40,15 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="konum" class="form-label">Yer</label>
+                            <input type="text" class="form-control" id="konum" name="konum" 
+                                   value="<%= etkinlik.konum %>" required>
+                            <div class="invalid-feedback">
+                                Lütfen etkinlik yerini girin.
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="tarih" class="form-label">Tarih</label>
@@ -53,19 +62,10 @@
                             <div class="col-md-6 mb-3">
                                 <label for="saat" class="form-label">Saat</label>
                                 <input type="time" class="form-control" id="saat" name="saat" 
-                                       value="<%= etkinlik.saat %>" required>
+                                       value="<%= new Date(etkinlik.tarih).toTimeString().slice(0,5) %>" required>
                                 <div class="invalid-feedback">
                                     Lütfen bir saat seçin.
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="yer" class="form-label">Yer</label>
-                            <input type="text" class="form-control" id="yer" name="yer" 
-                                   value="<%= etkinlik.yer %>" required>
-                            <div class="invalid-feedback">
-                                Lütfen etkinlik yerini girin.
                             </div>
                         </div>
 
@@ -79,9 +79,9 @@
 
                         <div class="mb-3">
                             <label class="form-label">Mevcut Görsel</label>
-                            <% if (etkinlik.gorsel) { %>
+                            <% if (etkinlik.gorsel && etkinlik.gorsel.base64) { %>
                                 <div class="mb-2">
-                                    <img src="<%= etkinlik.gorsel %>" alt="Mevcut görsel" class="img-thumbnail" style="max-height: 200px;">
+                                    <img src="<%= etkinlik.gorsel.base64 %>" alt="Mevcut görsel" class="img-thumbnail" style="max-height: 200px;">
                                 </div>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" id="gorselSil" name="gorselSil">

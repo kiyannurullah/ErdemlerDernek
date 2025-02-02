@@ -3,9 +3,9 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
-                <% if (ani.gorsel) { %>
-                    <img src="<%= ani.gorsel %>" class="card-img-top" alt="<%= ani.baslik %>">
+            <div class="card shadow">
+                <% if (ani.gorsel && ani.gorsel.base64) { %>
+                    <img src="<%= ani.gorsel.base64 %>" class="card-img-top" alt="<%= ani.baslik %>">
                 <% } %>
                 
                 <div class="card-body">

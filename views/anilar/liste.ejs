@@ -17,8 +17,10 @@
             <% anilar.forEach(ani => { %>
                 <div class="col">
                     <div class="card h-100">
-                        <% if (ani.gorsel) { %>
-                            <img src="<%= ani.gorsel %>" class="card-img-top" alt="<%= ani.baslik %>">
+                        <% if (ani.gorsel && ani.gorsel.base64) { %>
+                            <img src="<%= ani.gorsel.base64 %>" class="card-img-top" alt="<%= ani.baslik %>" style="height: 200px; object-fit: cover;">
+                        <% } else { %>
+                            <img src="/img/hero-bg.jpg" class="card-img-top" alt="<%= ani.baslik %>" style="height: 200px; object-fit: cover;">
                         <% } %>
                         <div class="card-body">
                             <h5 class="card-title"><%= ani.baslik %></h5>

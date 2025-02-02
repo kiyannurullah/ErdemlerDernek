@@ -31,8 +31,8 @@
                     <% anilar.forEach(function(ani) { %>
                         <div class="col">
                             <div class="card h-100 shadow-sm border-0 rounded-4 hover-shadow">
-                                <% if (ani.gorsel && ani.gorsel.startsWith('/uploads/')) { %>
-                                    <img src="<%= ani.gorsel %>" class="card-img-top rounded-top-4" alt="<%= ani.baslik %>" style="height: 200px; object-fit: cover;">
+                                <% if (ani.gorsel && ani.gorsel.base64) { %>
+                                    <img src="<%= ani.gorsel.base64 %>" class="card-img-top rounded-top-4" alt="<%= ani.baslik %>" style="height: 200px; object-fit: cover;">
                                 <% } else { %>
                                     <img src="/img/hero-bg.jpg" class="card-img-top rounded-top-4" alt="<%= ani.baslik %>" style="height: 200px; object-fit: cover;">
                                 <% } %>

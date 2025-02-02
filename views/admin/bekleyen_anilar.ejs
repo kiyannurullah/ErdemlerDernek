@@ -43,8 +43,8 @@
                                         <%= ani.icerik.length > 100 ? ani.icerik.substring(0, 100) + '...' : ani.icerik %>
                                     </td>
                                     <td>
-                                        <% if (ani.gorsel) { %>
-                                            <img src="<%= ani.gorsel %>" alt="Anı görseli" style="height: 50px;">
+                                        <% if (ani.gorsel && ani.gorsel.base64) { %>
+                                            <img src="<%= ani.gorsel.base64 %>" alt="Anı görseli" style="height: 50px;">
                                         <% } else { %>
                                             <span class="text-muted">Görsel yok</span>
                                         <% } %>

@@ -10,8 +10,9 @@ const aniSchema = new mongoose.Schema({
         required: [true, 'İçerik alanı zorunludur']
     },
     gorsel: {
-        type: String,
-        required: false
+        data: Buffer,
+        contentType: String,
+        base64: String
     },
     paylasanKullanici: {
         type: mongoose.Schema.Types.ObjectId,

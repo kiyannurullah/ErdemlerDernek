@@ -38,19 +38,19 @@
                             <textarea class="form-control" id="icerik" name="icerik" rows="6" required><%= ani.icerik %></textarea>
                         </div>
 
-                        <% if (ani.gorsel) { %>
+                        <% if (ani.gorsel && ani.gorsel.base64) { %>
                             <div class="mb-3">
                                 <label class="form-label">Mevcut Görsel</label>
                                 <div>
-                                    <img src="<%= ani.gorsel %>" class="img-fluid rounded mb-2" style="max-height: 200px;" alt="<%= ani.baslik %>">
+                                    <img src="<%= ani.gorsel.base64 %>" class="img-fluid rounded mb-2" style="max-height: 200px;" alt="<%= ani.baslik %>">
                                 </div>
                             </div>
                         <% } %>
 
                         <div class="mb-3">
-                            <label for="gorsel" class="form-label">Yeni Görsel (İsteğe Bağlı)</label>
+                            <label for="gorsel" class="form-label">Yeni Görsel Yükle</label>
                             <input type="file" class="form-control" id="gorsel" name="gorsel" accept="image/*">
-                            <small class="text-muted">Yeni görsel yüklerseniz mevcut görsel değiştirilecektir.</small>
+                            <small class="text-muted">Yeni bir görsel yüklerseniz, mevcut görsel değiştirilecektir.</small>
                         </div>
 
                         <div class="mb-3">

@@ -67,9 +67,20 @@ router.post('/admin/ekle', adminKontrol, upload.single('gorsel'), async (req, re
             aciklama,
             tarih: new Date(tarih + 'T' + saat),
             konum,
-            gorsel: req.file ? '/uploads/etkinlikler/' + req.file.filename : null,
             ekleyenAdmin: req.session.user.id
         });
+
+        // Eğer görsel yüklendiyse
+        if (req.file) {
+            const gorselData = fs.readFileSync(req.file.path);
+            etkinlik.gorsel = {
+                data: gorselData,
+                contentType: req.file.mimetype,
+                base64: `data:${req.file.mimetype};base64,${gorselData.toString('base64')}`
+            };
+            // Geçici dosyayı sil
+            fs.unlinkSync(req.file.path);
+        }
 
         await etkinlik.save();
         req.flash('success', 'Etkinlik başarıyla eklendi');
@@ -129,7 +140,7 @@ router.get('/admin/duzenle/:id', adminKontrol, async (req, res) => {
 // Admin - Etkinlik Düzenleme İşlemi
 router.post('/admin/duzenle/:id', adminKontrol, upload.single('gorsel'), async (req, res) => {
     try {
-        const { baslik, aciklama, tarih, saat, konum } = req.body;
+        const { baslik, aciklama, tarih, saat, konum, gorselSil } = req.body;
         const etkinlik = await Etkinlik.findById(req.params.id);
 
         if (!etkinlik) {
@@ -139,11 +150,36 @@ router.post('/admin/duzenle/:id', adminKontrol, upload.single('gorsel'), async (
 
         etkinlik.baslik = baslik;
         etkinlik.aciklama = aciklama;
-        etkinlik.tarih = new Date(tarih + 'T' + saat);
         etkinlik.konum = konum;
+        
+        // Tarih ve saat birleştirme
+        try {
+            const tarihSaat = new Date(tarih + 'T' + saat);
+            if (isNaN(tarihSaat.getTime())) {
+                throw new Error('Geçersiz tarih veya saat');
+            }
+            etkinlik.tarih = tarihSaat;
+        } catch (err) {
+            console.error('Tarih dönüştürme hatası:', err);
+            req.flash('error', 'Geçersiz tarih veya saat formatı');
+            return res.redirect(`/etkinlikler/admin/duzenle/${req.params.id}`);
+        }
 
+        // Görsel silme işlemi
+        if (gorselSil === 'on') {
+            etkinlik.gorsel = undefined;
+        }
+
+        // Yeni görsel yükleme işlemi
         if (req.file) {
-            etkinlik.gorsel = '/uploads/etkinlikler/' + req.file.filename;
+            const gorselData = fs.readFileSync(req.file.path);
+            etkinlik.gorsel = {
+                data: gorselData,
+                contentType: req.file.mimetype,
+                base64: `data:${req.file.mimetype};base64,${gorselData.toString('base64')}`
+            };
+            // Geçici dosyayı sil
+            fs.unlinkSync(req.file.path);
         }
 
         await etkinlik.save();
@@ -151,7 +187,7 @@ router.post('/admin/duzenle/:id', adminKontrol, upload.single('gorsel'), async (
         res.redirect('/etkinlikler');
     } catch (error) {
         console.error('Etkinlik güncelleme hatası:', error);
-        req.flash('error', 'Etkinlik güncellenirken bir hata oluştu');
+        req.flash('error', 'Etkinlik güncellenirken bir hata oluştu: ' + error.message);
         res.redirect(`/etkinlikler/admin/duzenle/${req.params.id}`);
     }
 });

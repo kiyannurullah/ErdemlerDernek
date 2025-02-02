@@ -18,8 +18,9 @@ const etkinlikSchema = new mongoose.Schema({
         required: [true, 'Etkinlik konumu zorunludur']
     },
     gorsel: {
-        type: String,
-        required: false
+        data: Buffer,
+        contentType: String,
+        base64: String
     },
     ekleyenAdmin: {
         type: mongoose.Schema.Types.ObjectId,

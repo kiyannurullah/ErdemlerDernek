@@ -19,8 +19,10 @@
                             <% etkinlikler.forEach(function(etkinlik) { %>
                                 <div class="col">
                                     <div class="card h-100">
-                                        <% if (etkinlik.gorsel) { %>
-                                            <img src="<%= etkinlik.gorsel %>" class="card-img-top" alt="<%= etkinlik.baslik %>" style="height: 200px; object-fit: cover;">
+                                        <% if (etkinlik.gorsel && etkinlik.gorsel.base64) { %>
+                                            <img src="<%= etkinlik.gorsel.base64 %>" class="card-img-top" alt="<%= etkinlik.baslik %>" style="height: 200px; object-fit: cover;">
+                                        <% } else { %>
+                                            <img src="/img/hero-bg.jpg" class="card-img-top" alt="<%= etkinlik.baslik %>" style="height: 200px; object-fit: cover;">
                                         <% } %>
                                         <div class="card-body">
                                             <h5 class="card-title"><%= etkinlik.baslik %></h5>

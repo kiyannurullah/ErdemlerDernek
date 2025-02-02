@@ -5,6 +5,7 @@ const User = require('../models/User');
 const Grup = require('../models/Grup');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 // Middleware - Giriş kontrolü
 const girisKontrol = (req, res, next) => {
@@ -100,22 +101,33 @@ router.get('/ekle', aktifUyeKontrol, (req, res) => {
 });
 
 // Anı Ekleme İşlemi
-router.post('/ekle', aktifUyeKontrol, upload.single('gorsel'), async (req, res) => {
+router.post('/ekle', upload.single('gorsel'), async (req, res) => {
     try {
         const { baslik, icerik } = req.body;
-        const ani = new Ani({
+        const yeniAni = new Ani({
             baslik,
             icerik,
-            gorsel: req.file ? '/uploads/anilar/' + req.file.filename : null,
-            paylasanKullanici: req.session.user.id,
-            durum: 'beklemede'
+            paylasanKullanici: req.session.user.id
         });
 
-        await ani.save();
-        req.flash('success', 'Anınız başarıyla eklendi ve onay için gönderildi');
+        // Eğer görsel yüklendiyse
+        if (req.file) {
+            const gorselData = fs.readFileSync(req.file.path);
+            yeniAni.gorsel = {
+                data: gorselData,
+                contentType: req.file.mimetype,
+                base64: `data:${req.file.mimetype};base64,${gorselData.toString('base64')}`
+            };
+            // Geçici dosyayı sil
+            fs.unlinkSync(req.file.path);
+        }
+
+        await yeniAni.save();
+        req.flash('success', 'Anınız başarıyla kaydedildi ve onay için gönderildi');
         res.redirect('/anilar');
     } catch (error) {
-        req.flash('error', 'Anı eklenirken bir hata oluştu: ' + error.message);
+        console.error('Anı ekleme hatası:', error);
+        req.flash('error', 'Anı eklenirken bir hata oluştu');
         res.redirect('/anilar/ekle');
     }
 });
@@ -320,48 +332,36 @@ router.get('/admin/duzenle/:id', adminKontrol, async (req, res) => {
 // Admin - Anı Düzenleme İşlemi
 router.post('/admin/duzenle/:id', adminKontrol, upload.single('gorsel'), async (req, res) => {
     try {
-        const { baslik, icerik, gorunurlukTipi, izinVerilenKullanicilar, izinVerilenGruplar } = req.body;
+        const { baslik, icerik } = req.body;
         const ani = await Ani.findById(req.params.id);
 
         if (!ani) {
             req.flash('error', 'Anı bulunamadı');
-            return res.redirect('/anilar/admin/liste');
+            return res.redirect('/anilar');
         }
 
-        // Temel bilgileri güncelle
         ani.baslik = baslik;
         ani.icerik = icerik;
 
-        // Görünürlük ayarlarını güncelle
-        ani.gorunurlukTipi = gorunurlukTipi;
-        if (gorunurlukTipi === 'secili_kullanicilar') {
-            ani.izinVerilenKullanicilar = Array.isArray(izinVerilenKullanicilar) 
-                ? izinVerilenKullanicilar 
-                : [izinVerilenKullanicilar];
-            ani.izinVerilenGruplar = [];
-        } else if (gorunurlukTipi === 'secili_gruplar') {
-            ani.izinVerilenGruplar = Array.isArray(izinVerilenGruplar)
-                ? izinVerilenGruplar
-                : [izinVerilenGruplar];
-            ani.izinVerilenKullanicilar = [];
-        } else {
-            // herkese_acik durumunda izin listelerini temizle
-            ani.izinVerilenKullanicilar = [];
-            ani.izinVerilenGruplar = [];
-        }
-
-        // Yeni görsel yüklendiyse güncelle
+        // Eğer yeni görsel yüklendiyse
         if (req.file) {
-            ani.gorsel = '/uploads/anilar/' + req.file.filename;
+            const gorselData = fs.readFileSync(req.file.path);
+            ani.gorsel = {
+                data: gorselData,
+                contentType: req.file.mimetype,
+                base64: `data:${req.file.mimetype};base64,${gorselData.toString('base64')}`
+            };
+            // Geçici dosyayı sil
+            fs.unlinkSync(req.file.path);
         }
 
         await ani.save();
         req.flash('success', 'Anı başarıyla güncellendi');
-        res.redirect('/anilar/admin/liste');
+        res.redirect('/anilar');
     } catch (error) {
         console.error('Anı güncelleme hatası:', error);
         req.flash('error', 'Anı güncellenirken bir hata oluştu');
-        res.redirect(`/anilar/admin/duzenle/${req.params.id}`);
+        res.redirect('/anilar');
     }
 });
 
@@ -376,9 +376,7 @@ router.post('/admin/sil/:id', adminKontrol, async (req, res) => {
 
         // Görsel varsa sil
         if (ani.gorsel) {
-            const fs = require('fs');
-            const path = require('path');
-            const gorselYolu = path.join(__dirname, '../public', ani.gorsel);
+            const gorselYolu = path.join(__dirname, '../public', ani.gorsel.data.toString('utf-8'));
             if (fs.existsSync(gorselYolu)) {
                 fs.unlinkSync(gorselYolu);
             }

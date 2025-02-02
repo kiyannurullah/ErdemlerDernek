@@ -88,23 +88,20 @@
                         <div class="list-group list-group-flush">
                             <% sonEtkinlikler.forEach(function(etkinlik) { %>
                                 <a href="/etkinlikler/<%= etkinlik._id %>" class="list-group-item list-group-item-action d-flex align-items-center py-2 px-0 border-bottom">
-                                    <% if (etkinlik.gorsel) { %>
-                                        <img src="<%= etkinlik.gorsel %>" 
-                                             class="rounded-2 me-2" 
-                                             alt="<%= etkinlik.baslik %>" 
-                                             style="width: 36px; height: 36px; object-fit: cover;">
+                                    <% if (etkinlik.gorsel && etkinlik.gorsel.base64) { %>
+                                        <img src="<%= etkinlik.gorsel.base64 %>" class="rounded me-3" alt="<%= etkinlik.baslik %>" style="width: 48px; height: 48px; object-fit: cover;">
+                                    <% } else { %>
+                                        <div class="rounded me-3 bg-light d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                            <i class="fas fa-calendar-alt text-muted"></i>
+                                        </div>
                                     <% } %>
-                                    <div class="flex-grow-1 min-width-0">
-                                        <h6 class="mb-0 text-truncate"><%= etkinlik.baslik %></h6>
-                                        <small class="text-muted d-block text-truncate">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1"><%= etkinlik.baslik %></h6>
+                                        <small class="text-muted">
                                             <i class="fas fa-calendar-alt me-1"></i>
-                                            <%= new Date(etkinlik.tarih).toLocaleString('tr-TR', {
-                                                dateStyle: 'medium',
-                                                timeStyle: 'short'
-                                            }) %>
+                                            <%= new Date(etkinlik.tarih).toLocaleString('tr-TR', { dateStyle: 'medium' }) %>
                                         </small>
                                     </div>
-                                    <i class="fas fa-chevron-right text-success ms-2"></i>
                                 </a>
                             <% }); %>
                         </div>

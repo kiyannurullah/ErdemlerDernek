@@ -4,8 +4,8 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow">
-                <% if (ani.gorsel && ani.gorsel.startsWith('/uploads/')) { %>
-                    <img src="<%= ani.gorsel %>" class="card-img-top" alt="<%= ani.baslik %>" style="height: 300px; object-fit: cover;">
+                <% if (ani.gorsel && ani.gorsel.base64) { %>
+                    <img src="<%= ani.gorsel.base64 %>" class="card-img-top" alt="<%= ani.baslik %>" style="height: 300px; object-fit: cover;">
                 <% } else { %>
                     <img src="/img/hero-bg.jpg" class="card-img-top" alt="<%= ani.baslik %>" style="height: 300px; object-fit: cover;">
                 <% } %>

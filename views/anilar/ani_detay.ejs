@@ -1,0 +1,5 @@
+                <% if (ani.gorsel && ani.gorsel.base64) { %>
+                    <img src="<%= ani.gorsel.base64 %>" class="card-img-top" alt="<%= ani.baslik %>" style="max-height: 400px; object-fit: cover;">
+                <% } else { %>
+                    <img src="/img/hero-bg.jpg" class="card-img-top" alt="<%= ani.baslik %>" style="max-height: 400px; object-fit: cover;">
+                <% } %> 

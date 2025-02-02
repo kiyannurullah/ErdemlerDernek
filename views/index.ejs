@@ -1,160 +1,217 @@
 <%- contentFor('body') %>
 
 <div class="container mt-4">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="position-relative rounded-4 overflow-hidden" style="min-height: 500px;">
+                <!-- Arka plan görseli -->
+                <div class="position-absolute w-100 h-100" style="z-index: 1;">
+                    <img src="/img/hero-bg.jpg" 
+                         alt="Köy Manzarası" 
+                         class="w-100 h-100"
+                         style="object-fit: cover; filter: brightness(0.85);">
+                </div>
+                
+                <!-- Gradient overlay -->
+                <div class="position-absolute w-100 h-100" 
+                     style="z-index: 2; background: linear-gradient(45deg, 
+                        rgba(34, 139, 34, 0.7), 
+                        rgba(76, 175, 80, 0.3),
+                        rgba(76, 175, 80, 0.1));">
+                </div>
+
+                <!-- İçerik -->
+                <div class="position-relative p-5 text-white" style="z-index: 3;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="bg-dark bg-opacity-25 p-4 rounded-4 backdrop-blur">
+                                    <h1 class="display-4 fw-bold mb-4 text-shadow">Erdemler Köyü Derneği'ne Hoş Geldiniz</h1>
+                                    <p class="lead mb-4 text-shadow">Doğanın kalbinde, geleneklerimizi yaşatan ve geleceğe taşıyan derneğimizin web sitesine hoş geldiniz. Köyümüzün değerlerini, anılarını ve etkinliklerini burada bulabilirsiniz.</p>
+                                    <% if (!user) { %>
+                                        <p class="h5 mb-4 text-shadow">Siz de köy derneğimize katılmak ister misiniz?</p>
+                                        <a class="btn btn-light btn-lg shadow-sm hover-scale" href="/kayit">
+                                            <i class="fas fa-user-plus me-2"></i>Hemen Üye Ol
+                                        </a>
+                                    <% } else if (user.rol === 'beklemede') { %>
+                                        <div class="alert bg-white bg-opacity-25 border-light">
+                                            <i class="fas fa-exclamation-circle me-2"></i>
+                                            <strong>Üyelik Başvurunuz İnceleniyor</strong>
+                                            <p class="mb-0 mt-2">Üyelik başvurunuz dernek yönetimi tarafından incelenmektedir. Onaylandıktan sonra tüm özelliklere erişebileceksiniz.</p>
+                                        </div>
+                                    <% } else if (user.rol === 'pasif_uye') { %>
+                                        <div class="alert bg-white bg-opacity-25 border-light">
+                                            <i class="fas fa-user-clock me-2"></i>
+                                            <strong>Pasif Üyelik</strong>
+                                            <p class="mb-0 mt-2">Üyeliğiniz şu anda pasif durumdadır. Detaylı bilgi için lütfen dernek yönetimi ile iletişime geçin.</p>
+                                        </div>
+                                    <% } else { %>
+                                        <p class="h4 mb-4 text-shadow">Hoş geldiniz, <%= user.isim %>!</p>
+                                        <% if (user.rol === 'aktif_uye' || user.rol === 'admin') { %>
+                                            <a class="btn btn-light btn-lg shadow hover-scale" href="/anilar">
+                                                <i class="fas fa-book me-2"></i>Köy Anılarını Görüntüle
+                                            </a>
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dekoratif ikonlar -->
+                <div class="position-absolute end-0 bottom-0 me-5 mb-4 opacity-25" style="z-index: 3;">
+                    <i class="fas fa-tree fa-4x text-white me-3"></i>
+                    <i class="fas fa-home fa-3x text-white me-3"></i>
+                    <i class="fas fa-mountain fa-5x text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Duyurular ve Etkinlikler -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-4 hover-shadow-lg">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center p-4">
+                    <h5 class="mb-0 text-success">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Yaklaşan Köy Etkinlikleri
+                    </h5>
+                    <a href="/etkinlikler" class="btn btn-outline-success btn-sm rounded-pill px-3">
+                        Tümünü Gör
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <% if (sonEtkinlikler && sonEtkinlikler.length > 0) { %>
+                        <div class="list-group list-group-flush">
+                            <% sonEtkinlikler.forEach(function(etkinlik) { %>
+                                <a href="/etkinlikler/<%= etkinlik._id %>" class="list-group-item list-group-item-action d-flex align-items-center py-2 px-0 border-bottom">
+                                    <% if (etkinlik.gorsel) { %>
+                                        <img src="<%= etkinlik.gorsel %>" 
+                                             class="rounded-2 me-2" 
+                                             alt="<%= etkinlik.baslik %>" 
+                                             style="width: 36px; height: 36px; object-fit: cover;">
+                                    <% } %>
+                                    <div class="flex-grow-1 min-width-0">
+                                        <h6 class="mb-0 text-truncate"><%= etkinlik.baslik %></h6>
+                                        <small class="text-muted d-block text-truncate">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            <%= new Date(etkinlik.tarih).toLocaleString('tr-TR', {
+                                                dateStyle: 'medium',
+                                                timeStyle: 'short'
+                                            }) %>
+                                        </small>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-success ms-2"></i>
+                                </a>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-2x text-success mb-2 opacity-50"></i>
+                            <p class="text-muted mb-0">Yakında yeni köy etkinlikleri eklenecektir.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-4 hover-shadow-lg">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center p-4">
+                    <h5 class="mb-0 text-success">
+                        <i class="fas fa-bullhorn me-2"></i>
+                        Köy Duyuruları
+                    </h5>
+                    <a href="/duyurular" class="btn btn-outline-success btn-sm rounded-pill px-3">
+                        Tümünü Gör
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <% if (sonDuyurular && sonDuyurular.length > 0) { %>
+                        <div class="list-group list-group-flush">
+                            <% sonDuyurular.forEach(function(duyuru) { %>
+                                <a href="/duyurular/<%= duyuru._id %>" class="list-group-item list-group-item-action d-flex align-items-center py-2 px-0 border-bottom">
+                                    <div class="bg-success bg-opacity-10 rounded-2 me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                        <i class="fas fa-bullhorn text-success"></i>
+                                    </div>
+                                    <div class="flex-grow-1 min-width-0">
+                                        <h6 class="mb-0 text-truncate"><%= duyuru.baslik %></h6>
+                                        <small class="text-muted d-block text-truncate">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <%= new Date(duyuru.createdAt).toLocaleString('tr-TR', {
+                                                dateStyle: 'medium',
+                                                timeStyle: 'short'
+                                            }) %>
+                                        </small>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-success ms-2"></i>
+                                </a>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="fas fa-bullhorn fa-2x text-success mb-2 opacity-50"></i>
+                            <p class="text-muted mb-0">Henüz duyuru bulunmuyor.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anılar Bölümü -->
     <div class="row">
         <div class="col-md-12">
-            <div class="jumbotron text-center">
-                <h1 class="display-4">Erdemler Derneği'ne Hoş Geldiniz</h1>
-                <p class="lead">Derneğimizin web sitesine hoş geldiniz. Burada dernek üyelerimizin paylaştığı anıları okuyabilir, etkinliklerimizi takip edebilir ve duyurularımızı görebilirsiniz.</p>
-                <hr class="my-4">
-                <% if (!user) { %>
-                    <p>Siz de aramıza katılmak ister misiniz?</p>
-                    <a class="btn btn-primary btn-lg" href="/kayit" role="button">
-                        <i class="fas fa-user-plus"></i> Hemen Üye Ol
-                    </a>
-                <% } else if (user.rol === 'beklemede') { %>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <strong>Üyelik Başvurunuz İnceleniyor</strong>
-                        <p class="mb-0">Üyelik başvurunuz admin tarafından incelenmektedir. Onaylandıktan sonra tüm özelliklere erişebileceksiniz.</p>
-                    </div>
-                <% } else if (user.rol === 'pasif_uye') { %>
-                    <div class="alert alert-secondary">
-                        <i class="fas fa-user-clock"></i>
-                        <strong>Pasif Üyelik</strong>
-                        <p class="mb-0">Üyeliğiniz şu anda pasif durumdadır. Detaylı bilgi için lütfen dernek yönetimi ile iletişime geçin.</p>
-                    </div>
-                <% } else { %>
-                    <p>Hoş geldiniz, <%= user.isim %>!</p>
-                    <% if (user.rol === 'aktif_uye' || user.rol === 'admin') { %>
-                        <a class="btn btn-primary btn-lg" href="/anilar" role="button">
-                            <i class="fas fa-book"></i> Anıları Görüntüle
-                        </a>
-                    <% } %>
-                <% } %>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Yaklaşan Etkinlikler</h5>
-                    <a href="/etkinlikler" class="btn btn-outline-primary btn-sm">Tümünü Gör</a>
-                </div>
-                <div class="card-body py-2">
-                    <% if (sonEtkinlikler && sonEtkinlikler.length > 0) { %>
-                        <div class="row g-2">
-                            <% sonEtkinlikler.forEach(function(etkinlik) { %>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center p-2 border rounded">
-                                        <% if (etkinlik.gorsel) { %>
-                                            <img src="<%= etkinlik.gorsel %>" 
-                                                 class="rounded-circle me-3" 
-                                                 alt="<%= etkinlik.baslik %>" 
-                                                 style="width: 50px; height: 50px; object-fit: cover;">
-                                        <% } %>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-0"><%= etkinlik.baslik %></h6>
-                                            <div class="text-muted small">
-                                                <i class="fas fa-calendar-alt"></i> 
-                                                <%= new Date(etkinlik.tarih).toLocaleString('tr-TR', {
-                                                    dateStyle: 'medium',
-                                                    timeStyle: 'short'
-                                                }) %>
-                                            </div>
-                                            <div class="text-muted small">
-                                                <i class="fas fa-map-marker-alt"></i> <%= etkinlik.konum %>
-                                            </div>
-                                        </div>
-                                        <a href="/etkinlikler/<%= etkinlik._id %>" class="btn btn-outline-primary btn-sm ms-2">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </a>
-                                    </div>
+            <div class="card shadow-sm border-0 rounded-4 hover-shadow-lg">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="text-success mb-3">
+                                <i class="fas fa-book me-2"></i>
+                                Köy Anıları
+                            </h5>
+                            <p class="card-text mb-md-0">Köyümüzün değerli üyelerinin paylaştığı anıları okuyabilir ve kendi anılarınızı paylaşabilirsiniz.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <% if (user && (user.rol === 'aktif_uye' || user.rol === 'admin')) { %>
+                                <a href="/anilar" class="btn btn-success btn-lg rounded-pill hover-scale">
+                                    <i class="fas fa-book me-2"></i>Anıları Görüntüle
+                                </a>
+                            <% } else if (user && user.rol === 'beklemede') { %>
+                                <div class="alert alert-success bg-success-subtle border-success mb-0">
+                                    <small>Üyeliğiniz onaylandıktan sonra köy anılarına erişebileceksiniz.</small>
                                 </div>
-                            <% }); %>
+                            <% } else if (!user) { %>
+                                <a href="/giris" class="btn btn-success btn-lg rounded-pill hover-scale">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Giriş Yapın
+                                </a>
+                            <% } %>
                         </div>
-                    <% } else { %>
-                        <div class="text-center py-3">
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-calendar-times me-2"></i>
-                                Yakında yeni etkinlikler eklenecektir.
-                            </p>
-                        </div>
-                    <% } %>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Son Duyurular</h5>
-                    <a href="/duyurular" class="btn btn-outline-primary btn-sm">Tümünü Gör</a>
-                </div>
-                <div class="card-body py-2">
-                    <% if (sonDuyurular && sonDuyurular.length > 0) { %>
-                        <div class="row g-2">
-                            <% sonDuyurular.forEach(function(duyuru) { %>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center p-2 border rounded">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-0"><%= duyuru.baslik %></h6>
-                                            <div class="text-muted small">
-                                                <i class="fas fa-clock"></i> 
-                                                <%= new Date(duyuru.createdAt).toLocaleString('tr-TR', {
-                                                    dateStyle: 'medium',
-                                                    timeStyle: 'short'
-                                                }) %>
-                                            </div>
-                                            <div class="text-muted small">
-                                                <i class="fas fa-user"></i> 
-                                                <%= duyuru.ekleyenAdmin ? `${duyuru.ekleyenAdmin.isim} ${duyuru.ekleyenAdmin.soyisim}` : 'Admin' %>
-                                            </div>
-                                        </div>
-                                        <a href="/duyurular/<%= duyuru._id %>" class="btn btn-outline-primary btn-sm ms-2">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            <% }); %>
-                        </div>
-                    <% } else { %>
-                        <div class="text-center py-3">
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-bullhorn me-2"></i>
-                                Henüz duyuru bulunmuyor.
-                            </p>
-                        </div>
-                    <% } %>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Anılar</h5>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">Dernek üyelerimizin paylaştığı değerli anıları okuyabilir ve kendi anılarınızı paylaşabilirsiniz.</p>
-                    <% if (user && (user.rol === 'aktif_uye' || user.rol === 'admin')) { %>
-                        <a href="/anilar" class="btn btn-primary">
-                            <i class="fas fa-book"></i> Anıları Görüntüle
-                        </a>
-                    <% } else if (user && user.rol === 'beklemede') { %>
-                        <div class="alert alert-warning mt-2">
-                            <small>Üyeliğiniz onaylandıktan sonra anılara erişebileceksiniz.</small>
-                        </div>
-                    <% } else if (!user) { %>
-                        <a href="/giris" class="btn btn-primary">
-                            <i class="fas fa-sign-in-alt"></i> Giriş Yapın
-                        </a>
-                    <% } %>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> 
+<style>
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+.hover-scale {
+    transition: transform 0.2s;
+}
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+.hover-shadow-lg:hover {
+    transition: box-shadow 0.2s;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+}
+.backdrop-blur {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+</style> 

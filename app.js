@@ -1,58 +1,105 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
-const flash = require('connect-flash');
-const path = require('path');
-const expressLayouts = require('express-ejs-layouts');
-const User = require('./models/User');
 const MongoStore = require('connect-mongo');
+const flash = require('connect-flash');
+const expressLayouts = require('express-ejs-layouts');
+const path = require('path');
+const User = require('./models/User');
 const Aidat = require('./models/Aidat');
-require('dotenv').config();
 
 const app = express();
 
-// View engine ayarları
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(expressLayouts);
-app.set('layout', 'layout');
+// MongoDB Bağlantısı
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log('MongoDB bağlantısı başarılı');
+}).catch((err) => {
+    console.error('MongoDB bağlantı hatası:', err);
+});
 
-// Middleware
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/img', express.static(path.join(__dirname, 'img')));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Session Ayarları
 app.use(session({
-    secret: 'erdemler-dernegi-gizli-anahtar',
-    resave: false,
-    saveUninitialized: false,
+    secret: process.env.SESSION_SECRET || 'gizli-anahtar',
+    resave: true,
+    saveUninitialized: true,
     store: MongoStore.create({
         mongoUrl: process.env.MONGODB_URI,
-        ttl: 24 * 60 * 60 // 1 gün
+        ttl: 14 * 24 * 60 * 60, // 14 gün
+        autoRemove: 'native',
+        touchAfter: 24 * 3600 // 24 saat
     }),
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Development ortamında false olmalı
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 1 gün
-    }
+        maxAge: 14 * 24 * 60 * 60 * 1000, // 14 gün
+        sameSite: 'lax',
+        path: '/'
+    },
+    name: 'erdemlerSession'
 }));
+
+// Flash mesajları
 app.use(flash());
 
-// Global değişkenler
+// View engine ayarları
+app.set('view engine', 'ejs');
+app.use(expressLayouts);
+
+// Statik dosyalar
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
+
+// Body parser
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Global middleware - session ve flash mesajları
 app.use((req, res, next) => {
+    // Session kontrolü
     res.locals.user = req.session.user || null;
+    res.locals.isAuthenticated = !!req.session.user;
+    
+    // Session bilgilerini logla
+    if (req.session.user) {
+        console.log('Session aktif:', {
+            id: req.session.user.id,
+            email: req.session.user.email,
+            rol: req.session.user.rol
+        });
+    }
+
+    // Flash mesajları
     res.locals.messages = {
         success: req.flash('success'),
-        error: req.flash('error'),
-        warning: req.flash('warning')
+        error: req.flash('error')
     };
+
     next();
 });
 
-// MongoDB bağlantısı
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/erdemler-dernegi')
-    .then(() => console.log('MongoDB bağlantısı başarılı'))
-    .catch(err => console.error('MongoDB bağlantı hatası:', err));
+// Rotalar
+const authRoutes = require('./routes/auth');
+const adminRoutes = require('./routes/admin');
+const aniRoutes = require('./routes/ani');
+const etkinlikRoutes = require('./routes/etkinlik');
+const duyuruRoutes = require('./routes/duyuru');
+const aidatRoutes = require('./routes/aidat');
+const grupRoutes = require('./routes/grup');
+const indexRoutes = require('./routes/index');
+
+// Route tanımlamaları
+app.use('/', indexRoutes);
+app.use('/', authRoutes); // Auth route'larını ana path'e taşıdık
+app.use('/admin', adminRoutes);
+app.use('/anilar', aniRoutes);
+app.use('/etkinlikler', etkinlikRoutes);
+app.use('/duyurular', duyuruRoutes);
+app.use('/aidat', aidatRoutes);
+app.use('/grup', grupRoutes);
 
 // Middleware - Giriş kontrolü
 const girisKontrol = (req, res, next) => {
@@ -73,24 +120,6 @@ const adminKontrol = (req, res, next) => {
         res.redirect('/');
     }
 };
-
-// Routes
-const authRoutes = require('./routes/auth');
-const aniRouter = require('./routes/ani');
-const etkinlikRoutes = require('./routes/etkinlik');
-const duyuruRoutes = require('./routes/duyuru');
-const adminRouter = require('./routes/admin');
-const indexRouter = require('./routes/index');
-const aidatRouter = require('./routes/aidat');
-
-// Route tanımlamaları
-app.use('/', indexRouter);
-app.use('/', authRoutes);
-app.use('/admin', adminRouter);
-app.use('/anilar', aniRouter);
-app.use('/etkinlikler', etkinlikRoutes);
-app.use('/duyurular', duyuruRoutes);
-app.use('/', aidatRouter);
 
 // Ana sayfa route'u
 app.get('/', (req, res) => {
@@ -196,5 +225,5 @@ app.post('/cikis', (req, res) => {
 // Server başlatma
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server ${PORT} portunda çalışıyor`);
+    console.log(`Sunucu ${PORT} portunda çalışıyor`);
 }); 

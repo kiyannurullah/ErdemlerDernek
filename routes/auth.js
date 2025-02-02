@@ -193,29 +193,51 @@ router.post('/giris', async (req, res) => {
 
         const user = await User.findOne({ email });
         if (!user) {
+            console.log('Kullanıcı bulunamadı:', email);
             req.flash('error', 'E-posta veya şifre hatalı');
+            return res.redirect('/giris');
+        }
+
+        if (user.rol === 'beklemede') {
+            console.log('Bekleyen kullanıcı girişi:', email);
+            req.flash('error', 'Hesabınız henüz onaylanmamış. Lütfen yönetici onayını bekleyin.');
             return res.redirect('/giris');
         }
 
         const sifreDogruMu = await bcrypt.compare(sifre, user.sifre);
         if (!sifreDogruMu) {
+            console.log('Hatalı şifre denemesi:', email);
             req.flash('error', 'E-posta veya şifre hatalı');
             return res.redirect('/giris');
         }
 
         // Session'a kullanıcı bilgilerini ekle
         req.session.user = {
-            id: user._id.toString(), // ID'yi string olarak kaydet
+            id: user._id,
             email: user.email,
             isim: user.isim,
             soyisim: user.soyisim,
             rol: user.rol
         };
 
-        console.log('Giriş yapan kullanıcı:', req.session.user);
+        // Session'ı kaydet
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session kayıt hatası:', err);
+                req.flash('error', 'Giriş yapılırken bir hata oluştu');
+                return res.redirect('/giris');
+            }
+            
+            console.log('Başarılı giriş:', {
+                id: user._id,
+                email: user.email,
+                rol: user.rol
+            });
+            
+            req.flash('success', 'Başarıyla giriş yaptınız');
+            res.redirect('/');
+        });
 
-        req.flash('success', 'Başarıyla giriş yaptınız');
-        res.redirect('/');
     } catch (error) {
         console.error('Giriş hatası:', error);
         req.flash('error', 'Giriş yapılırken bir hata oluştu');

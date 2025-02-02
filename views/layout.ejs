@@ -156,13 +156,13 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/etkinlikler"><i class="fas fa-calendar-alt me-1"></i>Etkinlikler</a>
                     </li>
-                    <% if (user) { %>
-                        <% if (user.rol === 'aktif_uye' || user.rol === 'admin') { %>
+                    <% if (locals.user && locals.isAuthenticated) { %>
+                        <% if (locals.user.rol === 'aktif_uye' || locals.user.rol === 'admin') { %>
                             <li class="nav-item">
                                 <a class="nav-link" href="/anilar"><i class="fas fa-book me-1"></i>Anılar</a>
                             </li>
                         <% } %>
-                        <% if (user.rol === 'admin') { %>
+                        <% if (locals.user.rol === 'admin') { %>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-cog me-1"></i>Yönetim
@@ -179,7 +179,7 @@
                         <% } %>
                         <li class="nav-item">
                             <a class="nav-link" href="/profil">
-                                <i class="fas fa-user me-1"></i><%= user.isim %>
+                                <i class="fas fa-user me-1"></i><%= locals.user.isim %>
                             </a>
                         </li>
                         <li class="nav-item">

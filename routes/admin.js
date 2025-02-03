@@ -8,6 +8,7 @@ const SiteAyar = require('../models/SiteAyar');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const Aidat = require('../models/Aidat');
 
 // Görsel yükleme ayarları
 const storage = multer.diskStorage({
@@ -428,6 +429,149 @@ router.post('/ayarlar', adminKontrol, upload.fields([
         console.error('Site ayarları güncelleme hatası:', error);
         req.flash('error', 'Site ayarları güncellenirken bir hata oluştu');
         res.redirect('/admin/ayarlar');
+    }
+});
+
+// Aidat yönetimi sayfası
+router.get('/aidat', adminKontrol, async (req, res) => {
+    try {
+        // Aktif üyeleri getir
+        const uyeler = await User.find({ 
+            rol: { $in: ['aktif_uye', 'admin'] } 
+        }).sort({ isim: 1, soyisim: 1 });
+
+        // Aidat kayıtlarını getir
+        const aidatlar = await Aidat.find()
+            .populate('uye', 'isim soyisim')
+            .sort({ yil: -1, ay: -1 });
+
+        res.render('admin/aidat_yonetimi', {
+            title: 'Aidat Yönetimi',
+            user: req.session.user,
+            uyeler: uyeler,
+            aidatlar: aidatlar
+        });
+    } catch (error) {
+        console.error('Aidat yönetimi sayfası hatası:', error);
+        req.flash('error', 'Aidat yönetimi sayfası yüklenirken bir hata oluştu');
+        res.redirect('/admin/panel');
+    }
+});
+
+// Aidat ekleme işlemi
+router.post('/aidat/ekle', adminKontrol, async (req, res) => {
+    try {
+        const { uye, ay, yil, tutar, aciklama } = req.body;
+
+        // Aynı ay ve yıl için aidat kaydı var mı kontrol et
+        const mevcutAidat = await Aidat.findOne({
+            uye: uye,
+            ay: ay,
+            yil: yil
+        });
+
+        if (mevcutAidat) {
+            return res.status(400).json({
+                success: false,
+                message: 'Bu ay için zaten aidat kaydı mevcut'
+            });
+        }
+
+        // Yeni aidat kaydı oluştur
+        const yeniAidat = new Aidat({
+            uye: uye,
+            ay: parseInt(ay),
+            yil: parseInt(yil),
+            tutar: parseFloat(tutar),
+            durum: 'Ödenmedi',
+            ekleyenAdmin: req.session.user.id,
+            aciklama: aciklama || ''
+        });
+
+        await yeniAidat.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Aidat kaydı başarıyla oluşturuldu'
+        });
+    } catch (error) {
+        console.error('Aidat ekleme hatası:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Aidat eklenirken bir hata oluştu: ' + error.message
+        });
+    }
+});
+
+// Aidat durumu güncelleme
+router.post('/aidat/durum-guncelle/:id', adminKontrol, async (req, res) => {
+    try {
+        const { durum, odemeTarihi } = req.body;
+        const aidat = await Aidat.findById(req.params.id);
+
+        if (!aidat) {
+            return res.status(404).json({
+                success: false,
+                message: 'Aidat kaydı bulunamadı'
+            });
+        }
+
+        aidat.durum = durum;
+        
+        // Ödeme tarihi kontrolü
+        if (durum === 'Ödendi') {
+            aidat.odemeTarihi = odemeTarihi ? new Date(odemeTarihi) : new Date();
+        } else {
+            aidat.odemeTarihi = null;
+        }
+
+        await aidat.save();
+
+        // Güncellenmiş veriyi döndür
+        const updatedAidat = await Aidat.findById(req.params.id)
+            .populate('uye', 'isim soyisim');
+
+        res.status(200).json({
+            success: true,
+            message: 'Aidat durumu başarıyla güncellendi',
+            aidat: {
+                ...updatedAidat.toObject(),
+                odemeTarihi: updatedAidat.odemeTarihi?.toLocaleDateString('tr-TR')
+            }
+        });
+    } catch (error) {
+        console.error('Aidat durumu güncelleme hatası:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Aidat durumu güncellenirken bir hata oluştu: ' + error.message
+        });
+    }
+});
+
+// Aidat silme
+router.delete('/aidat/sil/:id', adminKontrol, async (req, res) => {
+    try {
+        const aidat = await Aidat.findById(req.params.id);
+
+        if (!aidat) {
+            return res.status(404).json({
+                success: false,
+                message: 'Aidat kaydı bulunamadı'
+            });
+        }
+
+        await aidat.deleteOne();
+
+        res.status(200).json({
+            success: true,
+            message: 'Aidat kaydı başarıyla silindi'
+        });
+    } catch (error) {
+        console.error('Aidat silme hatası:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Aidat silinirken bir hata oluştu'
+        });
     }
 });
 

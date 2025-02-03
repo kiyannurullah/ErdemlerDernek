@@ -56,35 +56,18 @@
                             </thead>
                             <tbody>
                                 <% aidatlar.forEach(function(aidat) { %>
-                                    <tr>
+                                    <tr data-aidat-id="<%= aidat._id %>">
                                         <td><%= aidat.uye.isim %> <%= aidat.uye.soyisim %></td>
                                         <td><%= aidat.ay %>/<%= aidat.yil %></td>
-                                        <td><%= aidat.tutar %> ₺</td>
-                                        <td>
-                                            <% if (aidat.durum === 'Ödendi') { %>
-                                                <span class="badge bg-success">Ödendi</span>
+                                        <td><%= aidat.tutar %> TL</td>
+                                        <td class="durum"><%= aidat.durum %></td>
+                                        <td class="odeme-tarihi"><%= aidat.odemeTarihi ? new Date(aidat.odemeTarihi).toLocaleDateString('tr-TR') : '-' %></td>
+                                        <td class="islemler">
+                                            <% if (aidat.durum === 'Ödenmedi') { %>
+                                                <button class="btn btn-sm btn-primary" onclick="odemeYap('<%= aidat._id %>')">Öde</button>
                                             <% } else { %>
-                                                <span class="badge bg-danger">Ödenmedi</span>
+                                                <button class="btn btn-sm btn-warning" onclick="odenmemisYap('<%= aidat._id %>')">İptal Et</button>
                                             <% } %>
-                                        </td>
-                                        <td>
-                                            <% if (aidat.odemeTarihi) { %>
-                                                <%= aidat.odemeTarihi.toLocaleDateString('tr-TR') %>
-                                            <% } else { %>
-                                                -
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <% if (aidat.durum === 'Ödenmedi') { %>
-                                                    <button class="btn btn-sm btn-success me-2" onclick="aidatOde('<%= aidat._id %>')">
-                                                        <i class="fas fa-check me-1"></i>Öde
-                                                    </button>
-                                                <% } %>
-                                                <button class="btn btn-sm btn-danger" onclick="aidatSil('<%= aidat._id %>')">
-                                                    <i class="fas fa-trash me-1"></i>Sil
-                                                </button>
-                                            </div>
                                         </td>
                                     </tr>
                                 <% }); %>
@@ -105,7 +88,7 @@
                 <h5 class="modal-title">Yeni Aidat Ekle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/admin/aidat/ekle" method="POST">
+            <form id="yeniAidatForm">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Üye</label>
@@ -153,20 +136,6 @@
 </div>
 
 <script>
-function aidatOde(id) {
-    if(confirm('Bu aidatı ödendi olarak işaretlemek istediğinize emin misiniz?')) {
-        fetch(`/admin/aidat/${id}/ode`, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    location.reload();
-                } else {
-                    alert('Bir hata oluştu!');
-                }
-            });
-    }
-}
-
 function aidatSil(id) {
     if(confirm('Bu aidatı silmek istediğinize emin misiniz?')) {
         fetch(`/admin/aidat/${id}/sil`, { method: 'POST' })
@@ -195,4 +164,100 @@ function filterTable() {
     
     window.location.href = `/admin/aidat?uye=${uyeId}&yil=${yil}`;
 }
+
+// Ödeme işlemi
+async function odemeYap(aidatId) {
+    const odemeTarihi = prompt('Ödeme tarihini girin (GG/AA/YYYY formatında) veya boş bırakın (bugünün tarihi kullanılacak):');
+    
+    const response = await fetch(`/admin/aidat/durum-guncelle/${aidatId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            durum: 'Ödendi',
+            odemeTarihi: odemeTarihi || new Date().toLocaleDateString('tr-TR')
+        })
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+        alert(result.message);
+        // Tabloyu güncelle
+        const row = document.querySelector(`tr[data-aidat-id="${aidatId}"]`);
+        if (row) {
+            row.querySelector('.durum').textContent = 'Ödendi';
+            row.querySelector('.odeme-tarihi').textContent = result.aidat.odemeTarihi || '-';
+            row.querySelector('.islemler').innerHTML = `
+                <button class="btn btn-sm btn-success" disabled>Ödendi</button>
+            `;
+        }
+    } else {
+        alert('Hata: ' + result.message);
+    }
+}
+
+// Ödenmemiş yapma işlemi
+async function odenmemisYap(aidatId) {
+    const response = await fetch(`/admin/aidat/durum-guncelle/${aidatId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ durum: 'Ödenmedi' })
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+        alert(result.message);
+        const row = document.querySelector(`tr[data-aidat-id="${aidatId}"]`);
+        if (row) {
+            row.querySelector('.durum').textContent = 'Ödenmedi';
+            row.querySelector('.odeme-tarihi').textContent = '-';
+            row.querySelector('.islemler').innerHTML = `
+                <button class="btn btn-sm btn-primary" onclick="odemeYap('${aidatId}')">Öde</button>
+            `;
+        }
+    } else {
+        alert('Hata: ' + result.message);
+    }
+}
+
+// Yeni aidat form submit işlemi
+document.getElementById('yeniAidatForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch('/admin/aidat/ekle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            // Modal'ı kapat
+            bootstrap.Modal.getInstance(document.getElementById('yeniAidatModal')).hide();
+            
+            // Bildirim göster
+            alertify.success(result.message);
+            
+            // Tabloyu yenile
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            alertify.error(result.message);
+        }
+    } catch (error) {
+        console.error('Hata:', error);
+        alertify.error('Bir hata oluştu!');
+    }
+});
 </script> 

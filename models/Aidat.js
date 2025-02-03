@@ -6,21 +6,24 @@ const aidatSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    yil: {
-        type: Number,
-        required: true
-    },
     ay: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 12
+    },
+    yil: {
         type: Number,
         required: true
     },
     tutar: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     durum: {
         type: String,
-        enum: ['Ödenmedi', 'Ödendi'],
+        enum: ['Ödendi', 'Ödenmedi'],
         default: 'Ödenmedi'
     },
     odemeTarihi: {

@@ -96,7 +96,7 @@ const metaverseRouter = require('./routes/metaverse');
 
 // Route tanımlamaları
 app.use('/', indexRoutes);
-app.use('/', authRoutes); // Auth route'larını ana path'e taşıdık
+app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/anilar', aniRoutes);
 app.use('/etkinlikler', etkinlikRoutes);

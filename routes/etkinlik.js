@@ -195,21 +195,12 @@ router.post('/admin/duzenle/:id', adminKontrol, upload.single('gorsel'), async (
 // Admin - Etkinlik Silme
 router.post('/admin/sil/:id', adminKontrol, async (req, res) => {
     try {
-        const etkinlik = await Etkinlik.findById(req.params.id);
+        const etkinlik = await Etkinlik.findByIdAndDelete(req.params.id);
         if (!etkinlik) {
             req.flash('error', 'Etkinlik bulunamadı');
             return res.redirect('/etkinlikler');
         }
 
-        // Görsel varsa sil
-        if (etkinlik.gorsel) {
-            const gorselYolu = path.join(__dirname, '../public', etkinlik.gorsel);
-            if (fs.existsSync(gorselYolu)) {
-                fs.unlinkSync(gorselYolu);
-            }
-        }
-
-        await etkinlik.deleteOne();
         req.flash('success', 'Etkinlik başarıyla silindi');
         res.redirect('/etkinlikler');
     } catch (error) {

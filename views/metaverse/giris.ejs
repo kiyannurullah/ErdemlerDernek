@@ -1,0 +1,146 @@
+<%- contentFor('body') %>
+
+<div class="container-fluid min-vh-100" style="background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(240,240,240,0.95)), url('/img/metaverse-bg.jpg') center/cover fixed;">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-success shadow-lg overflow-hidden" style="background: rgba(255,255,255,0.95) !important; backdrop-filter: blur(10px);">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="metaverse-icon-container mb-4">
+                            <i class="fas fa-vr-cardboard fa-4x text-success"></i>
+                        </div>
+                        <h2 class="card-title text-dark mb-2 text-shadow" style="font-weight: 600;">Metaverse'e Hoş Geldiniz</h2>
+                        <p class="text-muted mb-4">Erdemler Köyü sanal dünyasına giriş yapın</p>
+                    </div>
+
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert border-0 shadow-sm" style="background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545 !important;">
+                            <i class="fas fa-exclamation-circle me-2 text-danger"></i>
+                            <span class="text-danger"><%= messages.error %></span>
+                        </div>
+                    <% } %>
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert border-0 shadow-sm" style="background: rgba(25, 135, 84, 0.1); border-left: 4px solid #198754 !important;">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            <span class="text-success"><%= messages.success %></span>
+                        </div>
+                    <% } %>
+
+                    <form action="/metaverse/giris" method="POST" class="needs-validation" novalidate>
+                        <div class="form-floating mb-4">
+                            <input type="email" class="form-control border-success" 
+                                   id="email" name="email" placeholder="E-posta" required
+                                   style="height: 55px;">
+                            <label for="email" class="text-muted">
+                                <i class="fas fa-envelope me-2"></i>E-posta
+                            </label>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Lütfen geçerli bir e-posta adresi girin.
+                            </div>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control border-success" 
+                                   id="sifre" name="sifre" placeholder="Şifre" required
+                                   style="height: 55px;">
+                            <label for="sifre" class="text-muted">
+                                <i class="fas fa-lock me-2"></i>Şifre
+                            </label>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Lütfen şifrenizi girin.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-success btn-lg hover-lift shadow-success">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Metaverse'e Giriş Yap
+                            </button>
+                            <a href="/" class="btn btn-outline-success btn-lg hover-lift">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Ana Sayfaya Dön
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.text-shadow {
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+.hover-lift {
+    transition: all 0.3s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-3px);
+}
+.metaverse-icon-container {
+    background: rgba(25, 135, 84, 0.1);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(25, 135, 84, 0.2);
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(25, 135, 84, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+    }
+}
+.shadow-success {
+    box-shadow: 0 0.5rem 1.5rem rgba(25, 135, 84, 0.2);
+}
+.shadow-success:hover {
+    box-shadow: 0 1rem 2rem rgba(25, 135, 84, 0.3);
+}
+.form-control {
+    transition: all 0.3s ease;
+}
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: #198754;
+    opacity: 1;
+}
+.alert {
+    backdrop-filter: blur(5px);
+}
+</style>
+
+<script>
+// Form doğrulama için Bootstrap validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script> 

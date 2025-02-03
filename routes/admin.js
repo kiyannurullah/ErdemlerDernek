@@ -3,16 +3,35 @@ const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const Grup = require('../models/Grup');
+const adminKontrol = require('../middleware/adminKontrol');
+const SiteAyar = require('../models/SiteAyar');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
-// Admin kontrolü middleware
-const adminKontrol = (req, res, next) => {
-    if (req.session.user && req.session.user.rol === 'admin') {
-        next();
-    } else {
-        req.flash('error', 'Bu sayfaya erişim yetkiniz yok');
-        res.redirect('/');
+// Görsel yükleme ayarları
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/site')
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname))
     }
-};
+});
+
+const upload = multer({
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        const filetypes = /jpeg|jpg|png|ico/;
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb('Hata: Sadece resim dosyaları yüklenebilir!');
+        }
+    }
+});
 
 // Admin Panel
 router.get('/panel', adminKontrol, async (req, res) => {
@@ -322,6 +341,93 @@ router.post('/grup-sil/:id', adminKontrol, async (req, res) => {
     } catch (error) {
         req.flash('error', 'Grup silinirken bir hata oluştu');
         res.redirect('/admin/gruplar');
+    }
+});
+
+// Site Ayarları Sayfası
+router.get('/ayarlar', adminKontrol, async (req, res) => {
+    try {
+        let ayarlar = await SiteAyar.findOne();
+        if (!ayarlar) {
+            await SiteAyar.varsayilanAyarlariOlustur();
+            ayarlar = await SiteAyar.findOne();
+        }
+
+        res.render('admin/ayarlar', {
+            title: 'Site Ayarları',
+            user: req.session.user,
+            ayarlar: ayarlar
+        });
+    } catch (error) {
+        console.error('Site ayarları sayfası hatası:', error);
+        req.flash('error', 'Site ayarları yüklenirken bir hata oluştu');
+        res.redirect('/admin');
+    }
+});
+
+// Site Ayarları Güncelleme
+router.post('/ayarlar', adminKontrol, upload.fields([
+    { name: 'logo', maxCount: 1 },
+    { name: 'favicon', maxCount: 1 }
+]), async (req, res) => {
+    try {
+        let ayarlar = await SiteAyar.findOne();
+        if (!ayarlar) {
+            await SiteAyar.varsayilanAyarlariOlustur();
+            ayarlar = await SiteAyar.findOne();
+        }
+
+        // Temel bilgileri güncelle
+        ayarlar.siteBaslik = req.body.siteBaslik;
+        ayarlar.siteAciklama = req.body.siteAciklama;
+        ayarlar.iletisimEmail = req.body.iletisimEmail;
+        ayarlar.iletisimTelefon = req.body.iletisimTelefon;
+        ayarlar.adres = req.body.adres;
+
+        // Sosyal medya bilgilerini güncelle
+        ayarlar.sosyalMedya = {
+            facebook: req.body.facebook,
+            twitter: req.body.twitter,
+            instagram: req.body.instagram,
+            youtube: req.body.youtube
+        };
+
+        // Modül durumlarını güncelle
+        ayarlar.metaverseAktif = req.body.metaverseAktif === 'on';
+        ayarlar.kayitAktif = req.body.kayitAktif === 'on';
+        ayarlar.duyuruAktif = req.body.duyuruAktif === 'on';
+        ayarlar.etkinlikAktif = req.body.etkinlikAktif === 'on';
+        ayarlar.anilarAktif = req.body.anilarAktif === 'on';
+
+        // Logo yüklendiyse güncelle
+        if (req.files.logo) {
+            const logoData = fs.readFileSync(req.files.logo[0].path);
+            ayarlar.logo = {
+                data: logoData,
+                contentType: req.files.logo[0].mimetype,
+                base64: `data:${req.files.logo[0].mimetype};base64,${logoData.toString('base64')}`
+            };
+            fs.unlinkSync(req.files.logo[0].path);
+        }
+
+        // Favicon yüklendiyse güncelle
+        if (req.files.favicon) {
+            const faviconData = fs.readFileSync(req.files.favicon[0].path);
+            ayarlar.favicon = {
+                data: faviconData,
+                contentType: req.files.favicon[0].mimetype,
+                base64: `data:${req.files.favicon[0].mimetype};base64,${faviconData.toString('base64')}`
+            };
+            fs.unlinkSync(req.files.favicon[0].path);
+        }
+
+        await ayarlar.save();
+        req.flash('success', 'Site ayarları başarıyla güncellendi');
+        res.redirect('/admin/ayarlar');
+    } catch (error) {
+        console.error('Site ayarları güncelleme hatası:', error);
+        req.flash('error', 'Site ayarları güncellenirken bir hata oluştu');
+        res.redirect('/admin/ayarlar');
     }
 });
 

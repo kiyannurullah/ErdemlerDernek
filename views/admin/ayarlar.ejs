@@ -1,0 +1,224 @@
+<%- contentFor('body') %>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h1 class="h3 mb-0 text-success">
+                        <i class="fas fa-cogs me-2"></i>
+                        Site Ayarları
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <% if (messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <%= messages.error %>
+                        </div>
+                    <% } %>
+                    <% if (messages.success && messages.success.length > 0) { %>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <%= messages.success %>
+                        </div>
+                    <% } %>
+
+                    <form action="/admin/ayarlar" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <!-- Temel Bilgiler -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Temel Bilgiler
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="siteBaslik" class="form-label">Site Başlığı</label>
+                                        <input type="text" class="form-control" id="siteBaslik" name="siteBaslik" 
+                                               value="<%= ayarlar.siteBaslik %>" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="siteAciklama" class="form-label">Site Açıklaması</label>
+                                        <input type="text" class="form-control" id="siteAciklama" name="siteAciklama" 
+                                               value="<%= ayarlar.siteAciklama %>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- İletişim Bilgileri -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-address-card me-2"></i>
+                                    İletişim Bilgileri
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="iletisimEmail" class="form-label">İletişim E-posta</label>
+                                        <input type="email" class="form-control" id="iletisimEmail" name="iletisimEmail" 
+                                               value="<%= ayarlar.iletisimEmail %>" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="iletisimTelefon" class="form-label">İletişim Telefon</label>
+                                        <input type="tel" class="form-control" id="iletisimTelefon" name="iletisimTelefon" 
+                                               value="<%= ayarlar.iletisimTelefon %>">
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label for="adres" class="form-label">Adres</label>
+                                        <textarea class="form-control" id="adres" name="adres" rows="2"><%= ayarlar.adres %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sosyal Medya -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-share-alt me-2"></i>
+                                    Sosyal Medya
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="facebook" class="form-label">Facebook</label>
+                                        <input type="url" class="form-control" id="facebook" name="facebook" 
+                                               value="<%= ayarlar.sosyalMedya?.facebook || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="twitter" class="form-label">Twitter</label>
+                                        <input type="url" class="form-control" id="twitter" name="twitter" 
+                                               value="<%= ayarlar.sosyalMedya?.twitter || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="instagram" class="form-label">Instagram</label>
+                                        <input type="url" class="form-control" id="instagram" name="instagram" 
+                                               value="<%= ayarlar.sosyalMedya?.instagram || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="youtube" class="form-label">YouTube</label>
+                                        <input type="url" class="form-control" id="youtube" name="youtube" 
+                                               value="<%= ayarlar.sosyalMedya?.youtube || '' %>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modül Ayarları -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-toggle-on me-2"></i>
+                                    Modül Ayarları
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="metaverseAktif" name="metaverseAktif"
+                                                   <%= ayarlar.metaverseAktif ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="metaverseAktif">Metaverse Aktif</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="kayitAktif" name="kayitAktif"
+                                                   <%= ayarlar.kayitAktif ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="kayitAktif">Üye Kaydı Aktif</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="duyuruAktif" name="duyuruAktif"
+                                                   <%= ayarlar.duyuruAktif ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="duyuruAktif">Duyurular Aktif</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="etkinlikAktif" name="etkinlikAktif"
+                                                   <%= ayarlar.etkinlikAktif ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="etkinlikAktif">Etkinlikler Aktif</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="anilarAktif" name="anilarAktif"
+                                                   <%= ayarlar.anilarAktif ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="anilarAktif">Anılar Aktif</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Logo ve Favicon -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-image me-2"></i>
+                                    Logo ve Favicon
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="logo" class="form-label">Site Logo</label>
+                                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                                        <% if (ayarlar.logo && ayarlar.logo.base64) { %>
+                                            <div class="mt-2">
+                                                <img src="<%= ayarlar.logo.base64 %>" alt="Mevcut Logo" class="img-thumbnail" style="height: 50px;">
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="favicon" class="form-label">Favicon</label>
+                                        <input type="file" class="form-control" id="favicon" name="favicon" accept="image/*">
+                                        <% if (ayarlar.favicon && ayarlar.favicon.base64) { %>
+                                            <div class="mt-2">
+                                                <img src="<%= ayarlar.favicon.base64 %>" alt="Mevcut Favicon" class="img-thumbnail" style="height: 32px;">
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                Ayarları Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form doğrulama
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script> 

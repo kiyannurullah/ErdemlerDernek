@@ -158,6 +158,46 @@
         </div>
     </div>
 
+    <!-- Metaverse Bölümü -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg overflow-hidden">
+                <div class="card-body text-center py-5 position-relative metaverse-section">
+                    <div class="position-absolute top-0 start-0 w-100 h-100" 
+                         style="background: linear-gradient(135deg, rgba(0,100,0,0.95), rgba(0,50,0,0.85)), url('/img/metaverse-bg.jpg') center/cover;
+                                filter: brightness(0.9);">
+                    </div>
+                    <div class="position-relative">
+                        <div class="metaverse-icon-container mb-4">
+                            <i class="fas fa-vr-cardboard fa-4x text-success"></i>
+                        </div>
+                        <h2 class="display-4 mb-4 text-white text-shadow">Erdemler Köyü Metaverse</h2>
+                        <p class="lead mb-4 text-light">Sanal gerçeklik dünyasında köyümüzü keşfedin!</p>
+                        <% if (user && (user.rol === 'admin' || user.rol === 'aktif_uye')) { %>
+                            <a href="/metaverse" class="btn btn-success btn-lg px-5 py-3 hover-lift shadow-success">
+                                <i class="fas fa-vr-cardboard me-2"></i>
+                                Metaverse'e Giriş Yap
+                            </a>
+                        <% } else if (user) { %>
+                            <div class="alert alert-warning d-inline-block shadow">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Metaverse'e erişim için aktif üye olmanız gerekmektedir.
+                            </div>
+                        <% } else { %>
+                            <div>
+                                <p class="mb-3 text-light">Metaverse'e erişmek için giriş yapın</p>
+                                <a href="/giris" class="btn btn-outline-light btn-lg px-5 py-3 hover-lift">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Giriş Yap
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Anılar Bölümü -->
     <div class="row">
         <div class="col-md-12">
@@ -210,5 +250,44 @@
 .backdrop-blur {
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
+}
+.metaverse-section {
+    min-height: 400px;
+}
+.metaverse-icon-container {
+    background: rgba(255,255,255,0.1);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255,255,255,0.2);
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(25, 135, 84, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+    }
+}
+.hover-lift {
+    transition: all 0.3s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-3px);
+}
+.shadow-success {
+    box-shadow: 0 0.5rem 1.5rem rgba(25, 135, 84, 0.2);
+}
+.shadow-success:hover {
+    box-shadow: 0 1rem 2rem rgba(25, 135, 84, 0.3);
 }
 </style> 

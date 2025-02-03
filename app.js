@@ -68,7 +68,9 @@ app.use((req, res, next) => {
         console.log('Session aktif:', {
             id: req.session.user.id,
             email: req.session.user.email,
-            rol: req.session.user.rol
+            rol: req.session.user.rol,
+            isAuthenticated: res.locals.isAuthenticated,
+            locals_user: res.locals.user ? 'var' : 'yok'
         });
     }
 
@@ -90,6 +92,7 @@ const duyuruRoutes = require('./routes/duyuru');
 const aidatRoutes = require('./routes/aidat');
 const grupRoutes = require('./routes/grup');
 const indexRoutes = require('./routes/index');
+const metaverseRouter = require('./routes/metaverse');
 
 // Route tanımlamaları
 app.use('/', indexRoutes);
@@ -100,6 +103,7 @@ app.use('/etkinlikler', etkinlikRoutes);
 app.use('/duyurular', duyuruRoutes);
 app.use('/aidat', aidatRoutes);
 app.use('/grup', grupRoutes);
+app.use('/metaverse', metaverseRouter);
 
 // Middleware - Giriş kontrolü
 const girisKontrol = (req, res, next) => {

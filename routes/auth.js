@@ -198,12 +198,6 @@ router.post('/giris', async (req, res) => {
             return res.redirect('/giris');
         }
 
-        if (user.rol === 'beklemede') {
-            console.log('Bekleyen kullanıcı girişi:', email);
-            req.flash('error', 'Hesabınız henüz onaylanmamış. Lütfen yönetici onayını bekleyin.');
-            return res.redirect('/giris');
-        }
-
         const sifreDogruMu = await bcrypt.compare(sifre, user.sifre);
         if (!sifreDogruMu) {
             console.log('Hatalı şifre denemesi:', email);
@@ -234,7 +228,11 @@ router.post('/giris', async (req, res) => {
                 rol: user.rol
             });
             
-            req.flash('success', 'Başarıyla giriş yaptınız');
+            if (user.rol === 'beklemede') {
+                req.flash('warning', 'Hesabınız henüz onaylanmamış. Sınırlı erişiminiz var. Lütfen yönetici onayını bekleyin.');
+            } else {
+                req.flash('success', 'Başarıyla giriş yaptınız');
+            }
             res.redirect('/');
         });
 

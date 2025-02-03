@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const adminKontrol = require('../middleware/adminKontrol');
+const girisKontrol = require('../middleware/girisKontrol');
 
 // Görsel yükleme ayarları
 const storage = multer.diskStorage({
@@ -162,8 +163,8 @@ router.post('/admin/sil/:id', adminKontrol, async (req, res) => {
     }
 });
 
-// Tüm Duyurular Sayfası (Herkes erişebilir)
-router.get('/', async (req, res) => {
+// Tüm Duyurular Sayfası (Giriş yapmış tüm üyeler erişebilir)
+router.get('/', girisKontrol, async (req, res) => {
     try {
         const duyurular = await Duyuru.find()
             .populate('ekleyenAdmin', 'isim soyisim')
@@ -181,8 +182,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Duyuru Detay Sayfası (Herkes erişebilir)
-router.get('/:id', async (req, res) => {
+// Duyuru Detay Sayfası (Giriş yapmış tüm üyeler erişebilir)
+router.get('/:id', girisKontrol, async (req, res) => {
     try {
         const duyuru = await Duyuru.findById(req.params.id)
             .populate('ekleyenAdmin', 'isim soyisim');

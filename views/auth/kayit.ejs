@@ -17,7 +17,7 @@
                         </div>
                     <% } %>
 
-                    <form action="/kayit" method="POST" class="needs-validation" novalidate>
+                    <form action="/auth/kayit" method="POST" class="needs-validation" novalidate>
                         <div class="mb-3">
                             <label for="isim" class="form-label">İsim</label>
                             <input type="text" class="form-control" id="isim" name="isim" required>
@@ -78,7 +78,7 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">Üye Ol</button>
-                            <a href="/giris" class="btn btn-link text-center">Zaten üye misiniz? Giriş yapın</a>
+                            <a href="/auth/giris" class="btn btn-link text-center">Zaten üye misiniz? Giriş yapın</a>
                         </div>
                     </form>
                 </div>

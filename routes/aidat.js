@@ -3,15 +3,11 @@ const router = express.Router();
 const Aidat = require('../models/Aidat');
 const User = require('../models/User');
 const adminKontrol = require('../middleware/adminKontrol');
+const girisKontrol = require('../middleware/girisKontrol');
 
 // Üye - Aidat Durumu Görüntüleme
-router.get('/aidat-durumu', async (req, res) => {
+router.get('/durum', girisKontrol, async (req, res) => {
     try {
-        if (!req.session.user) {
-            req.flash('error', 'Bu sayfayı görüntülemek için giriş yapmalısınız');
-            return res.redirect('/giris');
-        }
-
         const yil = req.query.yil || new Date().getFullYear();
         
         // Aidat listesi
@@ -59,6 +55,7 @@ router.get('/aidat-durumu', async (req, res) => {
 
         res.render('aidat_durumu', {
             title: 'Aidat Durumu',
+            user: req.session.user,
             aidatlar,
             yil,
             odenenToplam: odenenToplam[0]?.total || 0,

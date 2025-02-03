@@ -31,7 +31,7 @@
                                     <p class="lead mb-4 text-shadow">Doğanın kalbinde, geleneklerimizi yaşatan ve geleceğe taşıyan derneğimizin web sitesine hoş geldiniz. Köyümüzün değerlerini, anılarını ve etkinliklerini burada bulabilirsiniz.</p>
                                     <% if (!user) { %>
                                         <p class="h5 mb-4 text-shadow">Siz de köy derneğimize katılmak ister misiniz?</p>
-                                        <a class="btn btn-light btn-lg shadow-sm hover-scale" href="/kayit">
+                                        <a class="btn btn-light btn-lg shadow-sm hover-scale" href="/auth/kayit">
                                             <i class="fas fa-user-plus me-2"></i>Hemen Üye Ol
                                         </a>
                                     <% } else if (user.rol === 'beklemede') { %>
@@ -186,7 +186,7 @@
                         <% } else { %>
                             <div>
                                 <p class="mb-3 text-light">Metaverse'e erişmek için giriş yapın</p>
-                                <a href="/giris" class="btn btn-outline-light btn-lg px-5 py-3 hover-lift">
+                                <a href="/auth/giris" class="btn btn-outline-light btn-lg px-5 py-3 hover-lift">
                                     <i class="fas fa-sign-in-alt me-2"></i>
                                     Giriş Yap
                                 </a>
@@ -221,7 +221,7 @@
                                     <small>Üyeliğiniz onaylandıktan sonra köy anılarına erişebileceksiniz.</small>
                                 </div>
                             <% } else if (!user) { %>
-                                <a href="/giris" class="btn btn-success btn-lg rounded-pill hover-scale">
+                                <a href="/auth/giris" class="btn btn-success btn-lg rounded-pill hover-scale">
                                     <i class="fas fa-sign-in-alt me-2"></i>Giriş Yapın
                                 </a>
                             <% } %>

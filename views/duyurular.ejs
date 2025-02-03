@@ -1,20 +1,33 @@
 <%- contentFor('body') %>
 
 <div class="container mt-4">
+    <!-- Hero Section -->
+    <div class="position-relative rounded-4 overflow-hidden mb-5 bg-success bg-gradient" style="min-height: 200px;">
+        <div class="position-absolute w-100 h-100" style="background: linear-gradient(135deg, rgba(25,135,84,0.95), rgba(25,135,84,0.8));"></div>
+        <div class="position-relative p-5 text-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1 class="display-4 fw-bold mb-3">Duyurular</h1>
+                    <p class="lead mb-0">Derneğimizin güncel duyurularını takip edin</p>
+                </div>
+                <div class="d-none d-lg-block">
+                    <i class="fas fa-bullhorn fa-5x text-white opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
-            <div class="d-flex align-items-center justify-content-center mb-4">
-                <i class="fas fa-bullhorn fa-2x text-primary me-3"></i>
-                <h2 class="mb-0">Duyurular</h2>
-            </div>
-
             <% if (messages.success && messages.success.length > 0) { %>
-                <div class="alert alert-success">
+                <div class="alert alert-success border-0 shadow-sm">
+                    <i class="fas fa-check-circle me-2"></i>
                     <%= messages.success %>
                 </div>
             <% } %>
             <% if (messages.error && messages.error.length > 0) { %>
-                <div class="alert alert-danger">
+                <div class="alert alert-danger border-0 shadow-sm">
+                    <i class="fas fa-exclamation-circle me-2"></i>
                     <%= messages.error %>
                 </div>
             <% } %>
@@ -25,31 +38,28 @@
                 <% if (acilDuyurular.length > 0) { %>
                     <div class="mb-5">
                         <div class="d-flex align-items-center mb-4">
-                            <div class="bg-danger rounded-circle p-2 me-2">
-                                <i class="fas fa-exclamation-triangle text-white"></i>
+                            <div class="bg-danger bg-gradient rounded-circle p-3 me-3">
+                                <i class="fas fa-exclamation-triangle text-white fa-lg"></i>
                             </div>
-                            <h4 class="text-danger mb-0">Acil Duyurular</h4>
+                            <h3 class="text-danger mb-0 fw-bold">Acil Duyurular</h3>
                         </div>
                         <div class="row row-cols-1 row-cols-md-2 g-4">
                             <% acilDuyurular.forEach(function(duyuru) { %>
                                 <div class="col">
-                                    <div class="card h-100 shadow-sm border-0 rounded-4 hover-shadow">
-                                        <% if (duyuru.gorsel) { %>
-                                            <img src="<%= duyuru.gorsel %>" class="card-img-top rounded-top-4" alt="<%= duyuru.baslik %>" style="height: 200px; object-fit: cover;">
-                                        <% } %>
+                                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-card">
                                         <div class="card-body p-4">
                                             <div class="d-flex align-items-center mb-3">
-                                                <span class="badge bg-danger me-2">Acil</span>
-                                                <small class="text-muted">
+                                                <span class="badge bg-danger bg-gradient rounded-pill px-3 py-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i> Acil
+                                                </span>
+                                                <small class="text-muted ms-auto">
                                                     <i class="far fa-clock me-1"></i>
                                                     <%= new Date(duyuru.olusturmaTarihi).toLocaleDateString('tr-TR') %>
                                                 </small>
                                             </div>
                                             <h5 class="card-title mb-3"><%= duyuru.baslik %></h5>
-                                            <p class="card-text text-muted mb-4" style="height: 4.5em; overflow: hidden;">
-                                                <%= duyuru.icerik %>
-                                            </p>
-                                            <a href="/duyurular/<%= duyuru._id %>" class="btn btn-danger rounded-pill px-4">
+                                            <p class="card-text text-muted mb-4"><%= duyuru.icerik.substring(0, 150) %>...</p>
+                                            <a href="/duyurular/<%= duyuru._id %>" class="btn btn-danger bg-gradient rounded-pill px-4 py-2">
                                                 Devamını Oku <i class="fas fa-arrow-right ms-2"></i>
                                             </a>
                                         </div>
@@ -65,31 +75,28 @@
                 <% if (onemliDuyurular.length > 0) { %>
                     <div class="mb-5">
                         <div class="d-flex align-items-center mb-4">
-                            <div class="bg-warning rounded-circle p-2 me-2">
-                                <i class="fas fa-star text-white"></i>
+                            <div class="bg-success bg-gradient rounded-circle p-3 me-3">
+                                <i class="fas fa-star text-white fa-lg"></i>
                             </div>
-                            <h4 class="text-warning mb-0">Önemli Duyurular</h4>
+                            <h3 class="text-success mb-0 fw-bold">Önemli Duyurular</h3>
                         </div>
                         <div class="row row-cols-1 row-cols-md-2 g-4">
                             <% onemliDuyurular.forEach(function(duyuru) { %>
                                 <div class="col">
-                                    <div class="card h-100 shadow-sm border-0 rounded-4 hover-shadow">
-                                        <% if (duyuru.gorsel) { %>
-                                            <img src="<%= duyuru.gorsel %>" class="card-img-top rounded-top-4" alt="<%= duyuru.baslik %>" style="height: 200px; object-fit: cover;">
-                                        <% } %>
+                                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-card">
                                         <div class="card-body p-4">
                                             <div class="d-flex align-items-center mb-3">
-                                                <span class="badge bg-warning me-2">Önemli</span>
-                                                <small class="text-muted">
+                                                <span class="badge bg-success bg-gradient rounded-pill px-3 py-2">
+                                                    <i class="fas fa-star me-1"></i> Önemli
+                                                </span>
+                                                <small class="text-muted ms-auto">
                                                     <i class="far fa-clock me-1"></i>
                                                     <%= new Date(duyuru.olusturmaTarihi).toLocaleDateString('tr-TR') %>
                                                 </small>
                                             </div>
                                             <h5 class="card-title mb-3"><%= duyuru.baslik %></h5>
-                                            <p class="card-text text-muted mb-4" style="height: 4.5em; overflow: hidden;">
-                                                <%= duyuru.icerik %>
-                                            </p>
-                                            <a href="/duyurular/<%= duyuru._id %>" class="btn btn-warning text-white rounded-pill px-4">
+                                            <p class="card-text text-muted mb-4"><%= duyuru.icerik.substring(0, 150) %>...</p>
+                                            <a href="/duyurular/<%= duyuru._id %>" class="btn btn-success bg-gradient rounded-pill px-4 py-2">
                                                 Devamını Oku <i class="fas fa-arrow-right ms-2"></i>
                                             </a>
                                         </div>
@@ -105,31 +112,28 @@
                 <% if (normalDuyurular.length > 0) { %>
                     <div>
                         <div class="d-flex align-items-center mb-4">
-                            <div class="bg-primary rounded-circle p-2 me-2">
-                                <i class="fas fa-bullhorn text-white"></i>
+                            <div class="bg-success bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="fas fa-bullhorn text-success fa-lg"></i>
                             </div>
-                            <h4 class="text-primary mb-0">Diğer Duyurular</h4>
+                            <h3 class="text-success mb-0 fw-bold">Genel Duyurular</h3>
                         </div>
                         <div class="row row-cols-1 row-cols-md-2 g-4">
                             <% normalDuyurular.forEach(function(duyuru) { %>
                                 <div class="col">
-                                    <div class="card h-100 shadow-sm border-0 rounded-4 hover-shadow">
-                                        <% if (duyuru.gorsel) { %>
-                                            <img src="<%= duyuru.gorsel %>" class="card-img-top rounded-top-4" alt="<%= duyuru.baslik %>" style="height: 200px; object-fit: cover;">
-                                        <% } %>
+                                    <div class="card h-100 border-0 rounded-4 shadow-sm hover-card">
                                         <div class="card-body p-4">
                                             <div class="d-flex align-items-center mb-3">
-                                                <span class="badge bg-primary me-2">Duyuru</span>
-                                                <small class="text-muted">
+                                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">
+                                                    <i class="fas fa-bullhorn me-1"></i> Duyuru
+                                                </span>
+                                                <small class="text-muted ms-auto">
                                                     <i class="far fa-clock me-1"></i>
                                                     <%= new Date(duyuru.olusturmaTarihi).toLocaleDateString('tr-TR') %>
                                                 </small>
                                             </div>
                                             <h5 class="card-title mb-3"><%= duyuru.baslik %></h5>
-                                            <p class="card-text text-muted mb-4" style="height: 4.5em; overflow: hidden;">
-                                                <%= duyuru.icerik %>
-                                            </p>
-                                            <a href="/duyurular/<%= duyuru._id %>" class="btn btn-primary rounded-pill px-4">
+                                            <p class="card-text text-muted mb-4"><%= duyuru.icerik.substring(0, 150) %>...</p>
+                                            <a href="/duyurular/<%= duyuru._id %>" class="btn btn-outline-success rounded-pill px-4 py-2">
                                                 Devamını Oku <i class="fas fa-arrow-right ms-2"></i>
                                             </a>
                                         </div>
@@ -142,9 +146,11 @@
             <% } else { %>
                 <div class="text-center py-5">
                     <div class="mb-4">
-                        <i class="fas fa-bullhorn fa-4x text-muted"></i>
+                        <div class="bg-success bg-opacity-10 rounded-circle p-4 d-inline-block">
+                            <i class="fas fa-bullhorn fa-4x text-success"></i>
+                        </div>
                     </div>
-                    <h4>Henüz duyuru bulunmuyor</h4>
+                    <h3 class="text-success mb-3">Henüz duyuru bulunmuyor</h3>
                     <p class="text-muted">Yakında yeni duyurular eklenecektir.</p>
                 </div>
             <% } %>
@@ -153,11 +159,29 @@
 </div>
 
 <style>
-.hover-shadow {
+.hover-card {
     transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
 }
-.hover-shadow:hover {
+.hover-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.1)!important;
+    border-color: rgba(25,135,84,0.1);
+}
+.bg-gradient {
+    background-image: linear-gradient(to right, rgba(25,135,84,1), rgba(25,135,84,0.8))!important;
+}
+.badge {
+    font-weight: 500;
+}
+.card-title {
+    color: #2c3e50;
+}
+.btn {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+.btn-outline-success:hover {
+    background-image: linear-gradient(to right, rgba(25,135,84,1), rgba(25,135,84,0.8))!important;
 }
 </style> 

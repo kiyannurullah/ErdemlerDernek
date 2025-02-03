@@ -105,6 +105,12 @@ app.use('/aidat', aidatRoutes);
 app.use('/grup', grupRoutes);
 app.use('/metaverse', metaverseRouter);
 
+// Eski rotalar için yönlendirme
+app.get('/giris', (req, res) => res.redirect('/auth/giris'));
+app.get('/kayit', (req, res) => res.redirect('/auth/kayit'));
+app.post('/giris', (req, res) => res.redirect(307, '/auth/giris'));
+app.post('/kayit', (req, res) => res.redirect(307, '/auth/kayit'));
+
 // Middleware - Giriş kontrolü
 const girisKontrol = (req, res, next) => {
     if (req.session.user) {

@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const adminKontrol = require('../middleware/adminKontrol');
+const girisKontrol = require('../middleware/girisKontrol');
 
 // Görsel yükleme ayarları
 const storage = multer.diskStorage({
@@ -30,8 +31,8 @@ const upload = multer({
     }
 });
 
-// Etkinlikler Sayfası
-router.get('/', async (req, res) => {
+// Etkinlikler Sayfası (Giriş yapmış tüm üyeler erişebilir)
+router.get('/', girisKontrol, async (req, res) => {
     try {
         const etkinlikler = await Etkinlik.find()
             .sort({ tarih: 1 }) // Yaklaşan etkinlikler önce
@@ -92,8 +93,8 @@ router.post('/admin/ekle', adminKontrol, upload.single('gorsel'), async (req, re
     }
 });
 
-// Etkinlik Detay Sayfası
-router.get('/:id', async (req, res) => {
+// Etkinlik Detay Sayfası (Giriş yapmış tüm üyeler erişebilir)
+router.get('/:id', girisKontrol, async (req, res) => {
     try {
         const etkinlik = await Etkinlik.findById(req.params.id)
             .populate('ekleyenAdmin', 'isim soyisim');

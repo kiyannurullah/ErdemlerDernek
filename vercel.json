@@ -1,13 +1,19 @@
 {
   "version": 2,
-  "name": "erdemler-dernek",
   "builds": [
     {
       "src": "app.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["views/**", "public/**", "models/**", "routes/**", "middleware/**", "img/**"]
+      }
     }
   ],
   "routes": [
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "app.js"

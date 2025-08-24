@@ -2,10 +2,10 @@
   "name": "erdemler-dernegi",
   "version": "1.0.0",
   "description": "Erdemler Köyü Derneği Web Sitesi",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

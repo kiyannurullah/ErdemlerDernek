@@ -11,6 +11,16 @@ const Aidat = require('./models/Aidat');
 
 const app = express();
 
+// HTTPS redirect
+if (process.env.NODE_ENV === 'production') {
+    app.use((req, res, next) => {
+        if (req.header('x-forwarded-proto') !== 'https') {
+            return res.redirect(301, `https://${req.header('host')}${req.url}`);
+        }
+        next();
+    });
+}
+
 // MongoDB Bağlantısı
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
